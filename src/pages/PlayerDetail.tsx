@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { AchievementsSection } from '../components/AchievementsSection'
 import { Avatar } from '../components/Avatar'
 import { MatchRow } from '../components/MatchRow'
 import { PlayerForm } from '../components/PlayerForm'
 import { Sparkline } from '../components/Sparkline'
 import { UNKNOWN_PLAYER, useLeaderboard, usePlayerMap } from '../lib/hooks'
-import { ACHIEVEMENTS, headToHead, LEVELS, levelFor, rankedPlayers, winRate, type AchievementId } from '../lib/stats'
+import { headToHead, LEVELS, levelFor, rankedPlayers, winRate } from '../lib/stats'
 import { actions, useData } from '../lib/store'
 import { involves } from '../lib/teams'
 
@@ -109,26 +110,7 @@ export function PlayerDetail() {
         </section>
       )}
 
-      <section>
-        <h2>
-          Logros <span className="muted small">{s.achievements.length}/{Object.keys(ACHIEVEMENTS).length}</span>
-        </h2>
-        <div className="badges">
-          {(Object.keys(ACHIEVEMENTS) as AchievementId[])
-            .sort((x, y) => Number(s.achievements.includes(y)) - Number(s.achievements.includes(x)))
-            .map((a) => {
-              const info = ACHIEVEMENTS[a]
-              const unlocked = s.achievements.includes(a)
-              return (
-                <div key={a} className={'badge' + (unlocked ? ' unlocked' : '')} title={info.description}>
-                  <span className="badge-emoji">{unlocked ? info.emoji : '🔒'}</span>
-                  <span className="badge-name">{info.name}</span>
-                  <span className="badge-desc">{info.description}</span>
-                </div>
-              )
-            })}
-        </div>
-      </section>
+      <AchievementsSection stats={s} />
 
       {h2h.length > 0 && (
         <section>

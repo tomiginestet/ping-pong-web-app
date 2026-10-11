@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { TeamAvatar } from '../components/Avatar'
+import { Medal } from '../components/Medal'
+import { levelUps, type LevelUp } from '../lib/achievements'
 import { formatDate, UNKNOWN_PLAYER, usePlayerMap } from '../lib/hooks'
+import { TIERS } from '../lib/medalArt'
 import { computeMatch, describeConfig, other } from '../lib/scoring'
-import { ACHIEVEMENTS, computeLeaderboard, levelFor } from '../lib/stats'
+import { computeLeaderboard, levelFor } from '../lib/stats'
 import { actions, useData } from '../lib/store'
 import { sidePlayers, teamAsPlayer, teamName } from '../lib/teams'
 import type { Match, Player, Side } from '../lib/types'
@@ -273,12 +276,10 @@ function MatchResult({ match, teamA, teamB, onUndo, backTo }: { match: Match; te
   const { delta, newAchievements, elo } = useMemo(() => {
     const withMatch = computeLeaderboard(data)
     const without = computeLeaderboard({ ...data, matches: data.matches.filter((m) => m.id !== match.id) })
-    const news: { player: Player; ids: string[] }[] = []
+    const news: { player: Player; ups: LevelUp[] }[] = []
     for (const p of [...teamA, ...teamB]) {
-      const before = without.stats.get(p.id)?.achievements ?? []
-      const after = withMatch.stats.get(p.id)?.achievements ?? []
-      const ids = after.filter((x) => !before.includes(x))
-      if (ids.length) news.push({ player: p, ids })
+      const ups = levelUps(without.stats.get(p.id), withMatch.stats.get(p.id))
+      if (ups.length) news.push({ player: p, ups })
     }
     return {
       delta: withMatch.eloDeltas.get(match.id),
@@ -327,18 +328,17 @@ function MatchResult({ match, teamA, teamB, onUndo, backTo }: { match: Match; te
 
         {newAchievements.length > 0 && (
           <div className="new-achievements">
-            {newAchievements.map(({ player, ids }) =>
-              ids.map((aid) => {
-                const info = ACHIEVEMENTS[aid as keyof typeof ACHIEVEMENTS]
-                return (
-                  <div key={player.id + aid} className="achievement-toast">
-                    <span className="badge-emoji">{info.emoji}</span>
-                    <span>
-                      <b>{player.name}</b> desbloqueó <b>{info.name}</b>
-                    </span>
-                  </div>
-                )
-              }),
+            {newAchievements.map(({ player, ups }) =>
+              ups.map(({ family, level }) => (
+                <div key={player.id + family.id} className="achievement-toast">
+                  <Medal family={family} level={level} size={44} />
+                  <span>
+                    <b>{player.name}</b>{' '}
+                    {level === 0 ? 'desbloqueó' : `subió a ${TIERS[level].name.toLowerCase()} en ${family.name}:`}{' '}
+                    <b>{family.levels[level].name}</b>
+                  </span>
+                </div>
+              )),
             )}
           </div>
         )}

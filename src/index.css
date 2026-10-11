@@ -1092,50 +1092,146 @@ section > .section-head {
   display: block;
 }
 
-.badges {
+/* Medallas de logros (ilustraciones SVG de medalArt). */
+.medal {
+  display: inline-block;
+  line-height: 0;
+  flex: none;
+}
+
+.medal svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.medal.locked svg {
+  filter: grayscale(1) contrast(0.6) brightness(0.9);
+  opacity: 0.4;
+}
+
+.m-ol {
+  stroke: #2b1b12;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.medals {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 8px;
 }
 
-.badge {
+.medal-tile {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 2px;
-  padding: 12px 8px;
+  gap: 3px;
+  padding: 12px 10px;
   border-radius: 14px;
   background: var(--bg-2);
   border: 1px dashed var(--border);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  min-width: 0;
 }
 
-.badge:not(.unlocked) .badge-emoji {
-  filter: grayscale(1);
-  opacity: 0.5;
+.medal-tile.unlocked {
+  border-style: solid;
+  border-color: rgba(255, 180, 0, 0.45);
+  background: rgba(255, 180, 0, 0.06);
 }
 
-.badge:not(.unlocked) .badge-name {
+.medal-tile.open {
+  border-color: var(--accent-2);
+}
+
+.medal-tile:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+}
+
+.medal-family {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--muted);
 }
 
-.badge.unlocked {
-  border-style: solid;
-  border-color: rgba(255, 180, 0, 0.45);
-  background: rgba(255, 180, 0, 0.08);
-}
-
-.badge-emoji {
-  font-size: 28px;
-}
-
-.badge-name {
+.medal-name {
   font-weight: 700;
   font-size: 14px;
+  line-height: 1.2;
 }
 
-.badge-desc {
+.medal-tile:not(.unlocked) .medal-name {
+  color: var(--muted);
+}
+
+.medal-sub {
+  font-size: 11.5px;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+.medal-bar {
+  width: 100%;
+  height: 6px;
+  border-radius: 99px;
+  background: var(--border);
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.medal-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--accent-2);
+}
+
+.medal-ladder {
+  margin-top: 10px;
+}
+
+.medal-ladder-head h3 {
+  margin-bottom: 2px;
+}
+
+.medal-ladder ol {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.medal-ladder li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.medal-ladder li > div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.medal-ladder li:not(.got) b {
+  color: var(--muted);
+}
+
+.medal-at {
   font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   color: var(--muted);
 }
 
