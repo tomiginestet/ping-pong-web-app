@@ -55,6 +55,9 @@ export function PlayerDetail() {
         />
       ) : (
         <header className="profile" style={{ ['--player-color' as string]: player.color }}>
+          <button className="btn small profile-edit" onClick={() => setEditing(true)}>
+            ✏️ Editar
+          </button>
           <Avatar player={player} size={88} />
           <h1>{player.name}</h1>
           <div className="level-badge">
@@ -65,34 +68,39 @@ export function PlayerDetail() {
             <span className="muted">ELO · #{position} del ranking</span>
           </div>
           {nextLevel && (
-            <div className="progress" title={`Faltan ${nextLevel.min - s.elo} para ${nextLevel.name}`}>
-              <div
-                className="progress-bar"
-                style={{ width: `${Math.max(4, Math.min(100, ((s.elo - Math.max(level.min, 800)) / (nextLevel.min - Math.max(level.min, 800))) * 100))}%` }}
-              />
+            <div className="progress-wrap">
+              <div className="progress" aria-hidden>
+                <div
+                  className="progress-bar"
+                  style={{ width: `${Math.max(4, Math.min(100, ((s.elo - Math.max(level.min, 800)) / (nextLevel.min - Math.max(level.min, 800))) * 100))}%` }}
+                />
+              </div>
               <span className="progress-label">
-                {nextLevel.min - s.elo} para {nextLevel.emoji} {nextLevel.name}
+                Faltan {nextLevel.min - s.elo} para {nextLevel.emoji} {nextLevel.name}
               </span>
             </div>
           )}
-          <button className="btn small" onClick={() => setEditing(true)}>
-            ✏️ Editar
-          </button>
         </header>
       )}
 
       <div className="stat-grid">
-        <Stat label="Partidos" value={s.played} />
         <Stat label="Victorias" value={s.wins} />
         <Stat label="Derrotas" value={s.losses} />
-        <Stat label="% victorias" value={`${Math.round(winRate(s) * 100)}%`} />
+        <Stat label="% victorias" value={s.played ? `${Math.round(winRate(s) * 100)}%` : '–'} />
         <Stat label="Racha" value={s.streak > 0 ? `🔥 ${s.streak}` : s.streak < 0 ? `🥶 ${-s.streak}` : '–'} />
-        <Stat label="Mejor racha" value={s.bestStreak} />
-        <Stat label="Juegos" value={`${s.gamesWon}-${s.gamesLost}`} />
-        <Stat label="Puntos" value={`${s.pointsWon}-${s.pointsLost}`} />
-        <Stat label="Torneos" value={`🏆 ${s.tournamentsWon}`} />
-        {s.doublesPlayed > 0 && <Stat label="Dobles" value={`${s.doublesWins}/${s.doublesPlayed}`} />}
       </div>
+
+      <section className="card">
+        <h3>Estadísticas</h3>
+        <dl className="kv-list">
+          <Detail label="Partidos" value={s.played} />
+          <Detail label="Mejor racha" value={s.bestStreak} />
+          <Detail label="Juegos (G-P)" value={`${s.gamesWon}-${s.gamesLost}`} />
+          <Detail label="Puntos (G-P)" value={`${s.pointsWon}-${s.pointsLost}`} />
+          <Detail label="Torneos ganados" value={s.tournamentsWon} />
+          {s.doublesPlayed > 0 && <Detail label="Dobles (G/J)" value={`${s.doublesWins}/${s.doublesPlayed}`} />}
+        </dl>
+      </section>
 
       {s.eloHistory.length > 1 && (
         <section className="card">
@@ -106,17 +114,19 @@ export function PlayerDetail() {
           Logros <span className="muted small">{s.achievements.length}/{Object.keys(ACHIEVEMENTS).length}</span>
         </h2>
         <div className="badges">
-          {(Object.keys(ACHIEVEMENTS) as AchievementId[]).map((a) => {
-            const info = ACHIEVEMENTS[a]
-            const unlocked = s.achievements.includes(a)
-            return (
-              <div key={a} className={'badge' + (unlocked ? ' unlocked' : '')} title={info.description}>
-                <span className="badge-emoji">{unlocked ? info.emoji : '🔒'}</span>
-                <span className="badge-name">{info.name}</span>
-                <span className="badge-desc">{info.description}</span>
-              </div>
-            )
-          })}
+          {(Object.keys(ACHIEVEMENTS) as AchievementId[])
+            .sort((x, y) => Number(s.achievements.includes(y)) - Number(s.achievements.includes(x)))
+            .map((a) => {
+              const info = ACHIEVEMENTS[a]
+              const unlocked = s.achievements.includes(a)
+              return (
+                <div key={a} className={'badge' + (unlocked ? ' unlocked' : '')} title={info.description}>
+                  <span className="badge-emoji">{unlocked ? info.emoji : '🔒'}</span>
+                  <span className="badge-name">{info.name}</span>
+                  <span className="badge-desc">{info.description}</span>
+                </div>
+              )
+            })}
         </div>
       </section>
 
@@ -164,6 +174,15 @@ export function PlayerDetail() {
           🗑️ Borrar jugador
         </button>
       )}
+    </div>
+  )
+}
+
+function Detail({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd>{value}</dd>
     </div>
   )
 }

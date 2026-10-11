@@ -107,11 +107,12 @@ function League({ t, matches, players }: { t: Tournament; matches: Match[]; play
                 const p = players.get(r.playerId) ?? UNKNOWN_PLAYER
                 const dg = r.gamesFor - r.gamesAgainst
                 return (
-                  <tr key={r.playerId}>
+                  <tr key={r.playerId} className={i === 0 && r.played > 0 ? 'leader' : undefined}>
                     <td>{i + 1}</td>
-                    <td className="left">
+                    <td className="left player-cell">
                       <span className="player-tag">
-                        <Avatar player={p} size={24} /> {p.name}
+                        <Avatar player={p} size={24} />
+                        <span className="player-tag-name">{p.name}</span>
                       </span>
                     </td>
                     <td>{r.played}</td>
@@ -119,7 +120,7 @@ function League({ t, matches, players }: { t: Tournament; matches: Match[]; play
                     <td>{r.draws}</td>
                     <td>{r.losses}</td>
                     <td>{dg > 0 ? `+${dg}` : dg}</td>
-                    <td>
+                    <td className="pts">
                       <b>{r.points}</b>
                     </td>
                   </tr>

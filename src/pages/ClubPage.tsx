@@ -18,7 +18,7 @@ export function SyncBadge() {
   return (
     <Link to="/club" className={'sync-badge ' + sync.status}>
       <span className="sync-dot" />
-      {sync.club ? sync.club.name : 'Sincronizar'}
+      <span className="ellipsis">{sync.club ? sync.club.name : 'Sincronizar'}</span>
     </Link>
   )
 }
