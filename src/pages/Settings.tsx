@@ -31,8 +31,8 @@ export function Settings() {
 
   return (
     <div className="page">
-      <Link to="/ranking" className="back">
-        ← Ranking
+      <Link to="/" className="back">
+        ← Inicio
       </Link>
       <h1>Ajustes</h1>
 

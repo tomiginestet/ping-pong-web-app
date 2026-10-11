@@ -99,11 +99,6 @@ export function NewMatch() {
         )}
       </section>
 
-      <section className="card">
-        <h2>Reglas</h2>
-        <ConfigEditor value={config} onChange={setConfig} />
-      </section>
-
       {ready && (
         <section className="card">
           <h2>¿Quién saca primero?</h2>
@@ -120,6 +115,11 @@ export function NewMatch() {
           </div>
         </section>
       )}
+
+      <section className="card">
+        <h2>Reglas</h2>
+        <ConfigEditor value={config} onChange={setConfig} />
+      </section>
 
       <div className="sticky-actions">
         <button className="btn primary big block" disabled={!ready} onClick={start}>

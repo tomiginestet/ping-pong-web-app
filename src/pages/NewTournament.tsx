@@ -59,20 +59,22 @@ export function NewTournament() {
       </section>
 
       <section>
-        <h2>
-          Jugadores <span className="muted small">({selected.length})</span>
-        </h2>
+        <div className="section-head">
+          <h2>
+            Jugadores <span className="muted small">({selected.length})</span>
+          </h2>
+          {players.length > 2 &&
+            (selected.length === players.length ? (
+              <button className="link-btn" onClick={() => setSelected([])}>
+                Ninguno
+              </button>
+            ) : (
+              <button className="link-btn" onClick={() => setSelected(players.map((p) => p.id))}>
+                Elegir todos
+              </button>
+            ))}
+        </div>
         <PlayerPicker players={players} selected={selected} onToggle={toggle} badge={(id) => (selected.includes(id) ? '✓' : undefined)} />
-        {players.length > 2 && (
-          <div className="row gap">
-            <button className="link-btn" onClick={() => setSelected(players.map((p) => p.id))}>
-              Elegir todos
-            </button>
-            <button className="link-btn" onClick={() => setSelected([])}>
-              Ninguno
-            </button>
-          </div>
-        )}
       </section>
 
       <section className="card">

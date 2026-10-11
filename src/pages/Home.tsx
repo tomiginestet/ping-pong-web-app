@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
 import { MatchRow } from '../components/MatchRow'
+import { TournamentCard } from '../components/TournamentCard'
 import { SyncBadge } from './ClubPage'
 import { useLeaderboard, usePlayerMap } from '../lib/hooks'
 import { levelFor, rankedPlayers, tournamentChampion } from '../lib/stats'
@@ -21,22 +22,27 @@ export function Home() {
 
   return (
     <div className="page">
-      <header className="hero">
-        <div className="hero-top">
-          <SyncBadge />
+      <header className="home-header">
+        <div className="grow">
+          <h1>🏓 Ping Pong Club</h1>
+          <p className="muted">Partidos, torneos y quién manda en la mesa.</p>
         </div>
-        <div className="hero-ball">🏓</div>
-        <h1>Ping Pong Club</h1>
-        <p className="muted">Partidos, torneos y quién manda en la mesa.</p>
-        <div className="hero-actions">
-          <Link to="/partido/nuevo" className="btn primary big">
-            ⚡ Partido rápido
-          </Link>
-          <Link to="/torneos/nuevo" className="btn big">
-            🎪 Nuevo torneo
+        <div className="header-tools">
+          <SyncBadge />
+          <Link to="/ajustes" className="tool-btn" aria-label="Ajustes" title="Ajustes y copia de seguridad">
+            ⚙️
           </Link>
         </div>
       </header>
+
+      <div className="quick-actions">
+        <Link to="/partido/nuevo" className="btn primary big">
+          ⚡ Partido rápido
+        </Link>
+        <Link to="/torneos/nuevo" className="btn big">
+          🎪 Nuevo torneo
+        </Link>
+      </div>
 
       {data.players.length < 2 && (
         <div className="card onboarding">
@@ -57,10 +63,24 @@ export function Home() {
                 <MatchRow match={m} players={players} />
                 {!m.tournamentId && (
                   <button className="link-btn danger-text small" onClick={() => confirm('¿Descartar este partido sin terminar?') && actions.deleteMatch(m.id)}>
-                    Descartar
+                    🗑️ Descartar
                   </button>
                 )}
               </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {activeTournaments.length > 0 && (
+        <section>
+          <div className="section-head">
+            <h2>Torneos en curso</h2>
+            <Link to="/torneos">Ver todos →</Link>
+          </div>
+          <div className="list">
+            {activeTournaments.map((t) => (
+              <TournamentCard key={t.id} t={t} data={data} players={players} />
             ))}
           </div>
         </section>
@@ -88,26 +108,6 @@ export function Home() {
                 <div key={i} className="podium-spot empty-spot" />
               ),
             )}
-          </div>
-        </section>
-      )}
-
-      {activeTournaments.length > 0 && (
-        <section>
-          <h2>Torneos en curso</h2>
-          <div className="list">
-            {activeTournaments.map((t) => {
-              const ms = data.matches.filter((m) => m.tournamentId === t.id)
-              const done = ms.filter((m) => m.status === 'finished').length
-              return (
-                <Link key={t.id} to={`/torneos/${t.id}`} className="card tournament-card">
-                  <strong>{t.name}</strong>
-                  <span className="muted">
-                    {t.format === 'league' ? `Liga · ${done}/${ms.length} partidos` : `Eliminación · ${t.playerIds.length} jugadores`}
-                  </span>
-                </Link>
-              )
-            })}
           </div>
         </section>
       )}

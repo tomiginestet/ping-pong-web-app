@@ -27,7 +27,7 @@ export function PlayerPicker({ players, selected, onToggle, badge }: Props) {
           <button key={p.id} type="button" className={'picker-item' + (isSel ? ' active' : '')} onClick={() => onToggle(p.id)} style={isSel ? { borderColor: p.color } : undefined}>
             <Avatar player={p} size={44} />
             <span className="picker-name">{p.name}</span>
-            {b && <span className="picker-badge" style={{ background: p.color }}>{b}</span>}
+            {b && <span className="picker-badge" style={{ borderColor: p.color }}>{b}</span>}
           </button>
         )
       })}

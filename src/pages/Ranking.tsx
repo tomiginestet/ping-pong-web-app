@@ -90,10 +90,6 @@ export function Ranking() {
           Niveles: 🥚 Pelotita · 🐣 Aprendiz (900) · 🏓 Amateur (975) · 🌶️ Picante (1050) · ⚡ Crack (1125) · 🥋 Maestro (1200) · 🐉 Leyenda (1300)
         </p>
       </details>
-
-      <Link to="/ajustes" className="muted small center-text block-link">
-        ⚙️ Ajustes y copia de seguridad
-      </Link>
     </div>
   )
 }
