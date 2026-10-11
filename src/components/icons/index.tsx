@@ -1,14 +1,6 @@
 import { EggCrackIcon, EggIcon, LightningIcon, PepperIcon, PingPongIcon, type Icon, type IconProps } from '@phosphor-icons/react'
 import type { LevelIconId } from '../../lib/stats'
-import { AVATAR_ICONS } from './avatars'
 import { BeltIcon, DragonIcon } from './custom'
-
-/** Ícono de un avatar; si la clave no es conocida (p. ej. un emoji viejo), muestra el texto tal cual. */
-export function AvatarGlyph({ glyph, ...props }: IconProps & { glyph: string }) {
-  const entry = AVATAR_ICONS[glyph]
-  if (!entry) return <>{glyph}</>
-  return <entry.Icon weight="duotone" {...props} />
-}
 
 const LEVEL_ICONS: Record<LevelIconId, Icon> = {
   egg: EggIcon,

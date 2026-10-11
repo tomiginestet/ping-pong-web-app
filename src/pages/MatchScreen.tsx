@@ -1,5 +1,5 @@
 import { ArrowCounterClockwiseIcon, ArrowLeftIcon, ArrowsCounterClockwiseIcon, ArrowsLeftRightIcon, ConfettiIcon, HandshakeIcon, HouseIcon, PingPongIcon, SparkleIcon, StarIcon, TargetIcon, TrashIcon, TrophyIcon, XIcon } from '@phosphor-icons/react'
-import { AvatarGlyph, LevelIcon } from '../components/icons'
+import { LevelIcon } from '../components/icons'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { TeamAvatar } from '../components/Avatar'
@@ -167,9 +167,7 @@ function Scoreboard({ match }: { match: Match }) {
               disabled={locked}
             >
               <div className="ch-player">
-                <span className="ch-emoji">
-                  <TeamGlyphs team={s === 'a' ? teamA : teamB} />
-                </span>
+                <span className="ch-emoji">{p.emoji}</span>
                 <span className="ch-name">{p.name}</span>
               </div>
               <div className="ch-games" aria-label={`${state.gamesWon[s]} juegos`}>
@@ -319,18 +317,14 @@ function MatchResult({ match, teamA, teamB, onUndo, backTo }: { match: Match; te
         )}
         <div className="result-score">
           <div className={'rs-side' + (state.winner === 'a' ? ' w' : '')}>
-            <span className="rs-name">
-              <TeamGlyphs team={teamA} /> {pA.name}
-            </span>
+            <span>{pA.emoji} {pA.name}</span>
             <b>{state.gamesWon.a}</b>
             {delta && <span className={'elo-delta ' + (delta.a >= 0 ? 'up' : 'down')}>{delta.a >= 0 ? '+' : ''}{delta.a} ELO</span>}
             <span className="muted small"><LevelIcon icon={levelFor(elo.a).icon} /> {elo.a}</span>
           </div>
           <span className="vs">-</span>
           <div className={'rs-side' + (state.winner === 'b' ? ' w' : '')}>
-            <span className="rs-name">
-              <TeamGlyphs team={teamB} /> {pB.name}
-            </span>
+            <span>{pB.emoji} {pB.name}</span>
             <b>{state.gamesWon.b}</b>
             {delta && <span className={'elo-delta ' + (delta.b >= 0 ? 'up' : 'down')}>{delta.b >= 0 ? '+' : ''}{delta.b} ELO</span>}
             <span className="muted small"><LevelIcon icon={levelFor(elo.b).icon} /> {elo.b}</span>
@@ -397,17 +391,6 @@ function MatchResult({ match, teamA, teamB, onUndo, backTo }: { match: Match; te
 
 const CONFETTI_ICONS = [ConfettiIcon, PingPongIcon, SparkleIcon, StarIcon, TrophyIcon]
 const CONFETTI_COLORS = ['#ff6b35', '#ffb400', '#22c55e', '#3b82f6', '#ec4899', '#a855f7']
-
-/** Íconos de los avatares de un equipo, uno al lado del otro. */
-function TeamGlyphs({ team }: { team: Player[] }) {
-  return (
-    <span className="team-glyphs">
-      {team.map((p, i) => (
-        <AvatarGlyph key={p.id + i} glyph={p.emoji} />
-      ))}
-    </span>
-  )
-}
 
 function Confetti() {
   // Distribución pseudoaleatoria determinística (sin Math.random en el render).

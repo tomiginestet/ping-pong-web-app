@@ -1,7 +1,5 @@
 import { useState } from 'react'
 import { Avatar } from './Avatar'
-import { AvatarGlyph } from './icons'
-import { AVATAR_ICONS } from './icons/avatars'
 import { PLAYER_COLORS, PLAYER_EMOJIS, useData } from '../lib/store'
 
 function firstUnused<T>(options: T[], used: T[]): T {
@@ -34,7 +32,7 @@ export function PlayerForm({
         if (!trimmed || duplicate) return
         onSubmit({ name: trimmed, emoji, color })
         if (!initial) {
-          // Proponer otro avatar y color para el siguiente jugador.
+          // Proponer otro emoji y color para el siguiente jugador.
           setName('')
           setEmoji(firstUnused(PLAYER_EMOJIS, [...data.players.map((p) => p.emoji), emoji]))
           setColor(firstUnused(PLAYER_COLORS, [...data.players.map((p) => p.color), color]))
@@ -48,15 +46,8 @@ export function PlayerForm({
       {duplicate && <p className="error">Ya existe un jugador con ese nombre.</p>}
       <div className="emoji-grid">
         {PLAYER_EMOJIS.map((em) => (
-          <button
-            key={em}
-            type="button"
-            className={'emoji-btn' + (em === emoji ? ' active' : '')}
-            onClick={() => setEmoji(em)}
-            aria-label={AVATAR_ICONS[em]?.label}
-            title={AVATAR_ICONS[em]?.label}
-          >
-            <AvatarGlyph glyph={em} size={24} />
+          <button key={em} type="button" className={'emoji-btn' + (em === emoji ? ' active' : '')} onClick={() => setEmoji(em)}>
+            {em}
           </button>
         ))}
       </div>

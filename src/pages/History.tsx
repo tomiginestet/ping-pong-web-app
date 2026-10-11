@@ -25,7 +25,7 @@ export function History() {
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((p) => (
               <option key={p.id} value={p.id}>
-                {p.name}
+                {p.emoji} {p.name}
               </option>
             ))}
         </select>

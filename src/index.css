@@ -649,12 +649,6 @@ svg {
   color: #60a5fa;
 }
 
-.team-glyphs {
-  display: inline-flex;
-  gap: 2px;
-  vertical-align: -0.2em;
-}
-
 .live-dot {
   display: inline-block;
   width: 7px;
@@ -945,11 +939,7 @@ svg {
 }
 
 .emoji-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   aspect-ratio: 1;
-  color: var(--text);
   font-size: 22px;
   border-radius: 10px;
   border: 1px solid transparent;
@@ -959,7 +949,6 @@ svg {
 
 .emoji-btn.active {
   border-color: var(--accent);
-  color: var(--accent);
   background: rgba(255, 107, 53, 0.15);
 }
 
@@ -2179,8 +2168,7 @@ svg {
 .segmented button,
 .serve-tag,
 .level-badge,
-.stat-value,
-.rs-name {
+.stat-value {
   display: inline-flex;
   align-items: center;
   justify-content: center;

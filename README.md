@@ -4,7 +4,7 @@ Una pequeña app web para llevar los puntajes, rankings y torneos de ping pong e
 
 ## Qué hace
 
-- **Jugadores**: creá jugadores con nombre, avatar (ícono) y color (no hace falta registrarse).
+- **Jugadores**: creá jugadores con nombre, emoji y color (no hace falta registrarse).
 - **Partido rápido** (singles o dobles): elegí los jugadores y las reglas:
   - a cuántos puntos se gana cada juego (2, 4, 11, 21 o cualquier número),
   - al mejor de cuántos juegos (1, 3, 5, 10…; con número par puede haber empate),
