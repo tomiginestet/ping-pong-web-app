@@ -798,6 +798,19 @@ section > .section-head {
   text-align: right;
 }
 
+.match-row.is-live .mr-player {
+  color: var(--text);
+}
+
+.mr-games.live {
+  color: var(--win);
+}
+
+.mr-serve {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
 .mr-meta {
   display: flex;
   align-items: center;
