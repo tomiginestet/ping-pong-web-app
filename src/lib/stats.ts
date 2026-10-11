@@ -1,4 +1,5 @@
 import { computeMatch, pointTotals } from './scoring'
+import { isDoubles, sidePlayers } from './teams'
 import type { AppData, Id, Match, Player, Side } from './types'
 
 export const INITIAL_ELO = 1000
@@ -21,6 +22,8 @@ export interface PlayerStats {
   streak: number
   bestStreak: number
   tournamentsWon: number
+  doublesPlayed: number
+  doublesWins: number
   achievements: AchievementId[]
 }
 
@@ -42,6 +45,7 @@ export type AchievementId =
   | 'veteran-50'
   | 'giant-killer'
   | 'champion'
+  | 'dynamic-duo'
 
 export const ACHIEVEMENTS: Record<AchievementId, { emoji: string; name: string; description: string }> = {
   'first-win': { emoji: '🩸', name: 'Primera sangre', description: 'Ganar el primer partido' },
@@ -56,6 +60,7 @@ export const ACHIEVEMENTS: Record<AchievementId, { emoji: string; name: string; 
   'veteran-50': { emoji: '🏅', name: 'Veterano', description: 'Jugar 50 partidos' },
   'giant-killer': { emoji: '🗡️', name: 'Matagigantes', description: 'Ganarle a alguien con 100+ de ELO más' },
   champion: { emoji: '🏆', name: 'Campeón', description: 'Ganar un torneo' },
+  'dynamic-duo': { emoji: '🤝', name: 'Dupla dinámica', description: 'Ganar 3 partidos de dobles' },
 }
 
 export const LEVELS: { min: number; name: string; emoji: string }[] = [
@@ -94,6 +99,8 @@ function emptyStats(playerId: Id): PlayerStats {
     streak: 0,
     bestStreak: 0,
     tournamentsWon: 0,
+    doublesPlayed: 0,
+    doublesWins: 0,
     achievements: [],
   }
 }
@@ -129,65 +136,76 @@ export function computeLeaderboard(data: AppData): Leaderboard {
   }
 
   for (const m of finishedMatches(data.matches)) {
-    const sa = get(m.playerA)
-    const sb = get(m.playerB)
+    const teamA = sidePlayers(m, 'a').map(get)
+    const teamB = sidePlayers(m, 'b').map(get)
+    const doubles = teamA.length > 1
     const state = computeMatch(m.points, m.config, m.firstServer)
-    const scoreA = m.winner === m.playerA ? 1 : m.winner === m.playerB ? 0 : 0.5
-    const expA = expectedScore(sa.elo, sb.elo)
-    const deltaA = Math.round(K * (scoreA - expA))
-    const eloBeforeA = sa.elo
-    const eloBeforeB = sb.elo
-    sa.elo += deltaA
-    sb.elo -= deltaA
+    // En dobles, cada equipo juega con el promedio de ELO de sus integrantes.
+    const avg = (team: PlayerStats[]) => team.reduce((sum, s) => sum + s.elo, 0) / team.length
+    const eloA = avg(teamA)
+    const eloB = avg(teamB)
+    const scoreA = state.winner === 'a' ? 1 : state.winner === 'b' ? 0 : 0.5
+    const deltaA = Math.round(K * (scoreA - expectedScore(eloA, eloB)))
+    for (const s of teamA) s.elo += deltaA
+    for (const s of teamB) s.elo -= deltaA
     eloDeltas.set(m.id, { a: deltaA, b: -deltaA })
 
     const totals = pointTotals(m.points)
-    const pairs: [PlayerStats, Side, number][] = [
-      [sa, 'a', eloBeforeB - eloBeforeA],
-      [sb, 'b', eloBeforeA - eloBeforeB],
+    const sides: [PlayerStats[], Side, number][] = [
+      [teamA, 'a', eloB - eloA],
+      [teamB, 'b', eloA - eloB],
     ]
-    for (const [s, side, eloGap] of pairs) {
+    for (const [team, side, eloGap] of sides) {
       const opp: Side = side === 'a' ? 'b' : 'a'
-      s.played++
-      s.eloHistory.push(s.elo)
-      s.gamesWon += state.gamesWon[side]
-      s.gamesLost += state.gamesWon[opp]
-      s.pointsWon += totals[side]
-      s.pointsLost += totals[opp]
-      const won = state.winner === side
-      const lost = state.winner === opp
-      if (won) {
-        s.wins++
-        s.streak = s.streak > 0 ? s.streak + 1 : 1
-        s.bestStreak = Math.max(s.bestStreak, s.streak)
-        addAchievement(s, 'first-win')
-        if (s.streak >= 3) addAchievement(s, 'streak-3')
-        if (s.streak >= 5) addAchievement(s, 'streak-5')
-        if (s.streak >= 10) addAchievement(s, 'streak-10')
-        if (eloGap >= 100) addAchievement(s, 'giant-killer')
-        const gamesPlayed = state.gamesWon.a + state.gamesWon.b
-        if (m.config.bestOf > 1 && state.gamesWon[opp] === state.gamesNeeded - 1 && gamesPlayed > 1) {
-          addAchievement(s, 'clutch')
+      for (const s of team) {
+        s.played++
+        s.eloHistory.push(s.elo)
+        s.gamesWon += state.gamesWon[side]
+        s.gamesLost += state.gamesWon[opp]
+        s.pointsWon += totals[side]
+        s.pointsLost += totals[opp]
+        if (doubles) s.doublesPlayed++
+        const won = state.winner === side
+        const lost = state.winner === opp
+        if (won) {
+          s.wins++
+          if (doubles) {
+            s.doublesWins++
+            if (s.doublesWins >= 3) addAchievement(s, 'dynamic-duo')
+          }
+          s.streak = s.streak > 0 ? s.streak + 1 : 1
+          s.bestStreak = Math.max(s.bestStreak, s.streak)
+          addAchievement(s, 'first-win')
+          if (s.streak >= 3) addAchievement(s, 'streak-3')
+          if (s.streak >= 5) addAchievement(s, 'streak-5')
+          if (s.streak >= 10) addAchievement(s, 'streak-10')
+          if (eloGap >= 100) addAchievement(s, 'giant-killer')
+          const gamesPlayed = state.gamesWon.a + state.gamesWon.b
+          if (m.config.bestOf > 1 && state.gamesWon[opp] === state.gamesNeeded - 1 && gamesPlayed > 1) {
+            addAchievement(s, 'clutch')
+          }
+        } else if (lost) {
+          s.losses++
+          s.streak = s.streak < 0 ? s.streak - 1 : -1
+        } else {
+          s.draws++
+          s.streak = 0
         }
-      } else if (lost) {
-        s.losses++
-        s.streak = s.streak < 0 ? s.streak - 1 : -1
-      } else {
-        s.draws++
-        s.streak = 0
+        if (s.played >= 10) addAchievement(s, 'veteran-10')
+        if (s.played >= 50) addAchievement(s, 'veteran-50')
       }
-      if (s.played >= 10) addAchievement(s, 'veteran-10')
-      if (s.played >= 50) addAchievement(s, 'veteran-50')
     }
 
     // Logros por juego: pastelito, remontada, maratón.
     for (const g of gameTraces(m)) {
-      const s = g.winner === 'a' ? sa : sb
+      const team = g.winner === 'a' ? teamA : teamB
       const loserPoints = g.winner === 'a' ? g.b : g.a
       const winnerPoints = g.winner === 'a' ? g.a : g.b
-      if (loserPoints === 0 && m.config.pointsToWin >= 5) addAchievement(s, 'shutout')
-      if (g.maxDeficit[g.winner] >= 5) addAchievement(s, 'comeback')
-      if (m.config.winByTwo && winnerPoints >= m.config.pointsToWin + 4) addAchievement(s, 'marathon')
+      for (const s of team) {
+        if (loserPoints === 0 && m.config.pointsToWin >= 5) addAchievement(s, 'shutout')
+        if (g.maxDeficit[g.winner] >= 5) addAchievement(s, 'comeback')
+        if (m.config.winByTwo && winnerPoints >= m.config.pointsToWin + 4) addAchievement(s, 'marathon')
+      }
     }
   }
 
@@ -251,7 +269,7 @@ export interface HeadToHead {
 export function headToHead(playerId: Id, matches: Match[]): HeadToHead[] {
   const map = new Map<Id, HeadToHead>()
   for (const m of finishedMatches(matches)) {
-    if (m.playerA !== playerId && m.playerB !== playerId) continue
+    if (isDoubles(m) || (m.playerA !== playerId && m.playerB !== playerId)) continue
     const opp = m.playerA === playerId ? m.playerB : m.playerA
     const h = map.get(opp) ?? { opponentId: opp, played: 0, wins: 0, losses: 0, draws: 0 }
     h.played++

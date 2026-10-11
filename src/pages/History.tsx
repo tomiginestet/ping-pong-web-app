@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { MatchRow } from '../components/MatchRow'
 import { useLeaderboard, usePlayerMap } from '../lib/hooks'
 import { useData } from '../lib/store'
+import { involves } from '../lib/teams'
 import type { Id } from '../lib/types'
 
 export function History() {
@@ -11,7 +12,7 @@ export function History() {
   const [filter, setFilter] = useState<Id | ''>('')
   const matches = data.matches
     .filter((m) => m.status === 'finished')
-    .filter((m) => !filter || m.playerA === filter || m.playerB === filter)
+    .filter((m) => !filter || involves(m, filter))
     .sort((x, y) => (y.finishedAt ?? 0) - (x.finishedAt ?? 0))
 
   return (

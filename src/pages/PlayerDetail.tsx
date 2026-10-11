@@ -7,6 +7,7 @@ import { Sparkline } from '../components/Sparkline'
 import { UNKNOWN_PLAYER, useLeaderboard, usePlayerMap } from '../lib/hooks'
 import { ACHIEVEMENTS, headToHead, LEVELS, levelFor, rankedPlayers, winRate, type AchievementId } from '../lib/stats'
 import { actions, useData } from '../lib/store'
+import { involves } from '../lib/teams'
 
 export function PlayerDetail() {
   const { id } = useParams()
@@ -32,9 +33,9 @@ export function PlayerDetail() {
   const position = rankedPlayers(data.players, board).findIndex((r) => r.player.id === player.id) + 1
   const h2h = headToHead(player.id, data.matches)
   const matches = data.matches
-    .filter((m) => m.status === 'finished' && (m.playerA === player.id || m.playerB === player.id))
+    .filter((m) => m.status === 'finished' && involves(m, player.id))
     .sort((x, y) => (y.finishedAt ?? 0) - (x.finishedAt ?? 0))
-  const hasPlayed = data.matches.some((m) => m.playerA === player.id || m.playerB === player.id) || data.tournaments.some((t) => t.playerIds.includes(player.id))
+  const hasPlayed = data.matches.some((m) => involves(m, player.id)) || data.tournaments.some((t) => t.playerIds.includes(player.id))
 
   return (
     <div className="page">
@@ -90,6 +91,7 @@ export function PlayerDetail() {
         <Stat label="Juegos" value={`${s.gamesWon}-${s.gamesLost}`} />
         <Stat label="Puntos" value={`${s.pointsWon}-${s.pointsLost}`} />
         <Stat label="Torneos" value={`🏆 ${s.tournamentsWon}`} />
+        {s.doublesPlayed > 0 && <Stat label="Dobles" value={`${s.doublesWins}/${s.doublesPlayed}`} />}
       </div>
 
       {s.eloHistory.length > 1 && (
@@ -120,7 +122,9 @@ export function PlayerDetail() {
 
       {h2h.length > 0 && (
         <section>
-          <h2>Cara a cara</h2>
+          <h2>
+            Cara a cara <span className="muted small">(singles)</span>
+          </h2>
           <div className="list">
             {h2h.map((h) => {
               const opp = players.get(h.opponentId) ?? UNKNOWN_PLAYER

@@ -89,3 +89,14 @@ describe('torneos', () => {
     expect(rounds[1][0].winner).toBe('p2')
   })
 })
+
+describe('dobles', () => {
+  it('reparte el ELO a ambos integrantes de cada equipo', () => {
+    const m = match('p1', 'p3', 'a', { partnerA: 'p2', partnerB: 'p4' })
+    const board = computeLeaderboard({ version: 1, players, matches: [m], tournaments: [] })
+    for (const id of ['p1', 'p2']) expect(board.stats.get(id)!.elo).toBe(INITIAL_ELO + 16)
+    for (const id of ['p3', 'p4']) expect(board.stats.get(id)!.elo).toBe(INITIAL_ELO - 16)
+    expect(board.stats.get('p2')!.doublesWins).toBe(1)
+    expect(board.stats.get('p4')!.losses).toBe(1)
+  })
+})

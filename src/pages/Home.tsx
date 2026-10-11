@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
 import { MatchRow } from '../components/MatchRow'
+import { SyncBadge } from './ClubPage'
 import { useLeaderboard, usePlayerMap } from '../lib/hooks'
 import { levelFor, rankedPlayers, tournamentChampion } from '../lib/stats'
 import { actions, useData } from '../lib/store'
@@ -21,6 +22,9 @@ export function Home() {
   return (
     <div className="page">
       <header className="hero">
+        <div className="hero-top">
+          <SyncBadge />
+        </div>
         <div className="hero-ball">🏓</div>
         <h1>Ping Pong Club</h1>
         <p className="muted">Partidos, torneos y quién manda en la mesa.</p>

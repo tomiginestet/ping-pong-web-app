@@ -1,10 +1,12 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { actions, getData } from '../lib/store'
+import { useSyncState } from '../lib/sync'
 
 export function Settings() {
   const fileRef = useRef<HTMLInputElement>(null)
   const [message, setMessage] = useState('')
+  const inClub = !!useSyncState().club
 
   const exportData = () => {
     const blob = new Blob([JSON.stringify(getData(), null, 2)], { type: 'application/json' })
@@ -43,7 +45,7 @@ export function Settings() {
           <button className="btn primary" onClick={exportData}>
             ⬇️ Exportar
           </button>
-          <button className="btn" onClick={() => fileRef.current?.click()}>
+          <button className="btn" disabled={inClub} onClick={() => fileRef.current?.click()}>
             ⬆️ Importar
           </button>
           <input
@@ -58,13 +60,16 @@ export function Settings() {
             }}
           />
         </div>
+        {inClub && <p className="muted small">Para importar, primero salí del club (en ☁️ Club).</p>}
         {message && <p>{message}</p>}
       </section>
 
       <section className="card">
         <h3>Zona peligrosa</h3>
+        {inClub && <p className="muted small">Mientras estés en un club no se puede borrar todo: afectaría a todos sus miembros.</p>}
         <button
           className="btn danger"
+          disabled={inClub}
           onClick={() => {
             if (confirm('¿Borrar TODOS los jugadores, partidos y torneos? No se puede deshacer.')) {
               actions.resetAll()

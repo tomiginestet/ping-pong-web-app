@@ -6,6 +6,7 @@ import { NewTournament } from './pages/NewTournament'
 import { PlayerDetail } from './pages/PlayerDetail'
 import { Players } from './pages/Players'
 import { Ranking } from './pages/Ranking'
+import { ClubPage } from './pages/ClubPage'
 import { History } from './pages/History'
 import { Settings } from './pages/Settings'
 import { TournamentDetail } from './pages/TournamentDetail'
@@ -53,6 +54,8 @@ export default function App() {
           <Route path="/torneos/nuevo" element={<NewTournament />} />
           <Route path="/torneos/:id" element={<TournamentDetail />} />
           <Route path="/ajustes" element={<Settings />} />
+          <Route path="/club" element={<ClubPage />} />
+          <Route path="/unirse/:code" element={<ClubPage />} />
           <Route path="*" element={<Home />} />
         </Route>
       </Routes>

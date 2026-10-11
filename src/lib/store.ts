@@ -1,11 +1,13 @@
 import { useSyncExternalStore } from 'react'
+import { applyEntities, diffData, type EntityChange, type RemoteEntity } from './diff'
 import { computeMatch } from './scoring'
+import { involves } from './teams'
 import { knockoutSeeds, roundRobin, shuffle } from './tournament'
 import type { AppData, Id, Match, MatchConfig, Player, Side, Tournament, TournamentFormat } from './types'
 
 const STORAGE_KEY = 'ping-pong-data-v1'
 
-const EMPTY: AppData = { version: 1, players: [], matches: [], tournaments: [] }
+export const EMPTY: AppData = { version: 1, players: [], matches: [], tournaments: [] }
 
 export const PLAYER_COLORS = ['#ff5a5f', '#ffb400', '#00a699', '#3b82f6', '#a855f7', '#ec4899', '#22c55e', '#f97316', '#14b8a6', '#eab308']
 export const PLAYER_EMOJIS = ['🦊', '🐯', '🐼', '🐸', '🦁', '🐙', '🦄', '🐲', '🦅', '🐺', '🐻', '🐵', '🦈', '🐝', '🦖', '🐧', '🐨', '🐔', '🤖', '👽', '🔥', '⚡', '🌮', '🍕']
@@ -34,9 +36,20 @@ export function validate(input: unknown): AppData {
 
 let data: AppData = load()
 const listeners = new Set<() => void>()
+let changeListener: ((changes: EntityChange[]) => void) | undefined
 
-function commit(next: AppData) {
+/** Registra quién se entera de los cambios hechos localmente (la sincronización). */
+export function onLocalChanges(fn: (changes: EntityChange[]) => void) {
+  changeListener = fn
+}
+
+function commit(next: AppData, options: { remote?: boolean } = {}) {
+  const prev = data
   data = next
+  if (!options.remote && changeListener) {
+    const changes = diffData(prev, next)
+    if (changes.length) changeListener(changes)
+  }
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
   } catch {
@@ -66,6 +79,16 @@ export function useData(): AppData {
 
 export function getData(): AppData {
   return data
+}
+
+/** Cambios que vienen del servidor: no se vuelven a marcar para subir. */
+export function applyRemote(items: RemoteEntity[]) {
+  if (items.length) commit(applyEntities(data, items), { remote: true })
+}
+
+/** Reemplaza todos los datos locales sin generar cambios para subir. */
+export function replaceAllFromRemote(next: AppData) {
+  commit(next, { remote: true })
 }
 
 function updateMatch(id: Id, fn: (m: Match) => Match) {
@@ -99,19 +122,21 @@ export const actions = {
 
   /** Borra un jugador. Sólo se permite si no jugó partidos. */
   deletePlayer(id: Id): boolean {
-    if (data.matches.some((m) => m.playerA === id || m.playerB === id)) return false
+    if (data.matches.some((m) => involves(m, id))) return false
     if (data.tournaments.some((t) => t.playerIds.includes(id))) return false
     commit({ ...data, players: data.players.filter((p) => p.id !== id) })
     return true
   },
 
-  createMatch(playerA: Id, playerB: Id, config: MatchConfig, firstServer: Side): Match {
+  /** Crea un partido. Cada equipo tiene 1 jugador (singles) o 2 (dobles). */
+  createMatch(teamA: Id[], teamB: Id[], config: MatchConfig, firstServer: Side): Match {
     const m: Match = {
       id: uid(),
       createdAt: Date.now(),
       startedAt: Date.now(),
-      playerA,
-      playerB,
+      playerA: teamA[0],
+      playerB: teamB[0],
+      ...(teamA[1] && teamB[1] ? { partnerA: teamA[1], partnerB: teamB[1] } : {}),
       config,
       points: [],
       firstServer,
@@ -140,6 +165,8 @@ export const actions = {
       ...m,
       playerA: m.playerB,
       playerB: m.playerA,
+      partnerA: m.partnerB,
+      partnerB: m.partnerA,
       firstServer: m.firstServer === 'a' ? 'b' : 'a',
       points: m.points.map((p) => (p === 'a' ? 'b' : 'a')),
     }))

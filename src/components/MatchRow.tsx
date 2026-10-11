@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom'
 import { formatDate, UNKNOWN_PLAYER } from '../lib/hooks'
 import { computeMatch } from '../lib/scoring'
 import type { Match, Player, Id } from '../lib/types'
-import { Avatar } from './Avatar'
+import { sidePlayers, sideOf, teamName } from '../lib/teams'
+import { TeamAvatar } from './Avatar'
 
 interface Props {
   match: Match
@@ -14,18 +15,20 @@ interface Props {
 }
 
 export function MatchRow({ match: m, players, eloDelta, showDate = true, perspective }: Props) {
-  const a = players.get(m.playerA) ?? UNKNOWN_PLAYER
-  const b = players.get(m.playerB) ?? UNKNOWN_PLAYER
+  const teamOf = (s: 'a' | 'b') => sidePlayers(m, s).map((id) => players.get(id) ?? UNKNOWN_PLAYER)
+  const a = teamOf('a')
+  const b = teamOf('b')
   const state = computeMatch(m.points, m.config, m.firstServer)
   const finished = m.status === 'finished'
   const games = state.games.filter((g) => g.winner || g.a + g.b > 0)
   let resultClass = ''
-  if (perspective && finished) resultClass = m.winner === perspective ? ' win' : m.winner === null ? ' draw' : ' loss'
+  const mySide = perspective ? sideOf(m, perspective) : undefined
+  if (mySide && finished) resultClass = state.winner === mySide ? ' win' : state.winner === null ? ' draw' : ' loss'
 
-  const side = (p: Player, s: 'a' | 'b') => (
+  const side = (team: Player[], s: 'a' | 'b') => (
     <div className={'mr-player' + (finished && state.winner === s ? ' winner' : '')}>
-      <Avatar player={p} size={30} />
-      <span className="mr-name">{p.name}</span>
+      <TeamAvatar team={team} size={30} />
+      <span className="mr-name">{teamName(team)}</span>
       {eloDelta && <span className={'elo-delta ' + (eloDelta[s] >= 0 ? 'up' : 'down')}>{eloDelta[s] >= 0 ? '+' : ''}{eloDelta[s]}</span>}
       <span className="mr-games">{m.status === 'pending' ? '' : state.gamesWon[s]}</span>
     </div>

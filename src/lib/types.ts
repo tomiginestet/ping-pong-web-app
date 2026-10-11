@@ -31,6 +31,9 @@ export interface Match {
   finishedAt?: number
   playerA: Id
   playerB: Id
+  /** Dobles: compañero de A y de B. */
+  partnerA?: Id
+  partnerB?: Id
   config: MatchConfig
   /** Secuencia completa de puntos: quién ganó cada punto, en orden. */
   points: Side[]

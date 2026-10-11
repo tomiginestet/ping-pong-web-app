@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Avatar } from '../components/Avatar'
+import { TeamAvatar } from '../components/Avatar'
 import { formatDate, UNKNOWN_PLAYER, usePlayerMap } from '../lib/hooks'
 import { computeMatch, describeConfig, other } from '../lib/scoring'
 import { ACHIEVEMENTS, computeLeaderboard, levelFor } from '../lib/stats'
 import { actions, useData } from '../lib/store'
+import { sidePlayers, teamAsPlayer, teamName } from '../lib/teams'
 import type { Match, Player, Side } from '../lib/types'
 
 function vibrate(ms = 15) {
@@ -58,8 +59,10 @@ export function MatchScreen() {
 function Scoreboard({ match }: { match: Match }) {
   const navigate = useNavigate()
   const players = usePlayerMap()
-  const pA = players.get(match.playerA) ?? UNKNOWN_PLAYER
-  const pB = players.get(match.playerB) ?? UNKNOWN_PLAYER
+  const teamA = sidePlayers(match, 'a').map((id) => players.get(id) ?? UNKNOWN_PLAYER)
+  const teamB = sidePlayers(match, 'b').map((id) => players.get(id) ?? UNKNOWN_PLAYER)
+  const pA = teamAsPlayer(teamA)
+  const pB = teamAsPlayer(teamB)
   const state = computeMatch(match.points, match.config, match.firstServer)
   const completedGames = state.games.filter((g) => g.winner).length
   const [flipped, setFlipped] = useState(false)
@@ -190,9 +193,9 @@ function Scoreboard({ match }: { match: Match }) {
         <div className="overlay">
           <div className="overlay-card">
             <div className="vs-row">
-              <PlayerBig p={pA} />
+              <PlayerBig team={teamA} />
               <span className="vs">VS</span>
-              <PlayerBig p={pB} />
+              <PlayerBig team={teamB} />
             </div>
             <p className="muted">{describeConfig(match.config)}</p>
             <p>Saca primero:</p>
@@ -243,32 +246,35 @@ function Scoreboard({ match }: { match: Match }) {
         </div>
       )}
 
-      {finished && <MatchResult match={match} pA={pA} pB={pB} onUndo={undo} backTo={backTo} />}
+      {finished && <MatchResult match={match} teamA={teamA} teamB={teamB} onUndo={undo} backTo={backTo} />}
     </div>
   )
 }
 
-function PlayerBig({ p }: { p: Player }) {
+function PlayerBig({ team }: { team: Player[] }) {
   return (
     <div className="player-big">
-      <Avatar player={p} size={64} />
-      <strong>{p.name}</strong>
+      <TeamAvatar team={team} size={64} />
+      <strong>{teamName(team)}</strong>
     </div>
   )
 }
 
-function MatchResult({ match, pA, pB, onUndo, backTo }: { match: Match; pA: Player; pB: Player; onUndo: () => void; backTo: string }) {
+function MatchResult({ match, teamA, teamB, onUndo, backTo }: { match: Match; teamA: Player[]; teamB: Player[]; onUndo: () => void; backTo: string }) {
+  const pA = teamAsPlayer(teamA)
+  const pB = teamAsPlayer(teamB)
   const data = useData()
   const navigate = useNavigate()
   const state = computeMatch(match.points, match.config, match.firstServer)
   const winner = state.winner === 'a' ? pA : state.winner === 'b' ? pB : null
+  const winnerTeam = state.winner === 'a' ? teamA : teamB
 
   // ELO y logros: comparamos el historial con y sin este partido.
   const { delta, newAchievements, elo } = useMemo(() => {
     const withMatch = computeLeaderboard(data)
     const without = computeLeaderboard({ ...data, matches: data.matches.filter((m) => m.id !== match.id) })
     const news: { player: Player; ids: string[] }[] = []
-    for (const p of [pA, pB]) {
+    for (const p of [...teamA, ...teamB]) {
       const before = without.stats.get(p.id)?.achievements ?? []
       const after = withMatch.stats.get(p.id)?.achievements ?? []
       const ids = after.filter((x) => !before.includes(x))
@@ -277,12 +283,15 @@ function MatchResult({ match, pA, pB, onUndo, backTo }: { match: Match; pA: Play
     return {
       delta: withMatch.eloDeltas.get(match.id),
       newAchievements: news,
-      elo: { a: withMatch.stats.get(pA.id)?.elo ?? 1000, b: withMatch.stats.get(pB.id)?.elo ?? 1000 },
+      elo: { a: teamElo(teamA), b: teamElo(teamB) },
     }
-  }, [data, match.id, pA, pB])
+    function teamElo(team: Player[]) {
+      return Math.round(team.reduce((sum, p) => sum + (withMatch.stats.get(p.id)?.elo ?? 1000), 0) / team.length)
+    }
+  }, [data, match.id, teamA, teamB])
 
   const rematch = () => {
-    const m = actions.createMatch(match.playerA, match.playerB, match.config, other(match.firstServer))
+    const m = actions.createMatch(sidePlayers(match, 'a'), sidePlayers(match, 'b'), match.config, other(match.firstServer))
     navigate(`/partido/${m.id}`)
   }
 
@@ -293,8 +302,8 @@ function MatchResult({ match, pA, pB, onUndo, backTo }: { match: Match; pA: Play
         <div className="big-emoji">{winner ? '🏆' : '🤝'}</div>
         {winner ? (
           <>
-            <Avatar player={winner} size={80} />
-            <h2>¡Ganó {winner.name}!</h2>
+            <TeamAvatar team={winnerTeam} size={80} />
+            <h2>¡{winnerTeam.length > 1 ? 'Ganaron' : 'Ganó'} {winner.name}!</h2>
           </>
         ) : (
           <h2>¡Empate!</h2>
