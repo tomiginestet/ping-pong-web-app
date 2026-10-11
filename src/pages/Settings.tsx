@@ -1,3 +1,4 @@
+import { ArrowLeftIcon, CheckCircleIcon, DownloadSimpleIcon, TrashIcon, UploadSimpleIcon, XCircleIcon } from '@phosphor-icons/react'
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { actions, getData } from '../lib/store'
@@ -5,7 +6,7 @@ import { useSyncState } from '../lib/sync'
 
 export function Settings() {
   const fileRef = useRef<HTMLInputElement>(null)
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState<{ kind: 'ok' | 'error' | 'info'; text: string } | null>(null)
   const inClub = !!useSyncState().club
 
   const exportData = () => {
@@ -23,16 +24,16 @@ export function Settings() {
       const parsed = JSON.parse(await file.text())
       if (!confirm('Esto reemplaza todos los datos actuales por los del archivo. ¿Seguir?')) return
       actions.importData(parsed)
-      setMessage('✅ Datos importados.')
+      setMessage({ kind: 'ok', text: 'Datos importados.' })
     } catch (e) {
-      setMessage('❌ No se pudo importar: ' + (e instanceof Error ? e.message : 'archivo inválido'))
+      setMessage({ kind: 'error', text: 'No se pudo importar: ' + (e instanceof Error ? e.message : 'archivo inválido') })
     }
   }
 
   return (
     <div className="page">
       <Link to="/" className="back">
-        ← Inicio
+        <ArrowLeftIcon /> Inicio
       </Link>
       <h1>Ajustes</h1>
 
@@ -43,10 +44,10 @@ export function Settings() {
         </p>
         <div className="row gap wrap">
           <button className="btn primary" onClick={exportData}>
-            ⬇️ Exportar
+            <DownloadSimpleIcon /> Exportar
           </button>
           <button className="btn" disabled={inClub} onClick={() => fileRef.current?.click()}>
-            ⬆️ Importar
+            <UploadSimpleIcon /> Importar
           </button>
           <input
             ref={fileRef}
@@ -60,8 +61,14 @@ export function Settings() {
             }}
           />
         </div>
-        {inClub && <p className="muted small">Para importar, primero salí del club (en ☁️ Club).</p>}
-        {message && <p>{message}</p>}
+        {inClub && <p className="muted small">Para importar, primero salí del club (en Inicio → Club).</p>}
+        {message && (
+          <p className={'status-message ' + message.kind}>
+            {message.kind === 'ok' && <CheckCircleIcon weight="fill" />}
+            {message.kind === 'error' && <XCircleIcon weight="fill" />}
+            {message.text}
+          </p>
+        )}
       </section>
 
       <section className="card">
@@ -73,11 +80,11 @@ export function Settings() {
           onClick={() => {
             if (confirm('¿Borrar TODOS los jugadores, partidos y torneos? No se puede deshacer.')) {
               actions.resetAll()
-              setMessage('Datos borrados.')
+              setMessage({ kind: 'info', text: 'Datos borrados.' })
             }
           }}
         >
-          🗑️ Borrar todo
+          <TrashIcon /> Borrar todo
         </button>
       </section>
     </div>

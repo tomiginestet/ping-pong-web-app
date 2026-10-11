@@ -1,8 +1,10 @@
+import { FireIcon } from '@phosphor-icons/react'
+import { LevelIcon, PlaceMedal } from '../components/icons'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
 import { useLeaderboard } from '../lib/hooks'
-import { levelFor, rankedPlayers, winRate } from '../lib/stats'
+import { LEVELS, levelFor, rankedPlayers, winRate } from '../lib/stats'
 import { useData } from '../lib/store'
 
 type SortKey = 'elo' | 'wins' | 'rate' | 'streak' | 'played'
@@ -56,13 +58,19 @@ export function Ranking() {
           const level = levelFor(s.elo)
           return (
             <Link key={r.player.id} to={`/jugadores/${r.player.id}`} className={'rank-row' + (s.played === 0 ? ' inactive' : '')}>
-              <span className="rank-pos">{s.played === 0 ? '–' : i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</span>
+              <span className="rank-pos">{s.played === 0 ? '–' : i < 3 ? <PlaceMedal place={(i + 1) as 1 | 2 | 3} size={28} /> : i + 1}</span>
               <Avatar player={r.player} size={40} />
               <div className="grow">
                 <strong>{r.player.name}</strong>
                 <div className="muted small">
-                  {level.emoji} {level.name} · {s.wins}G {s.losses}P{s.draws ? ` ${s.draws}E` : ''}
-                  {s.streak >= 3 && ' · 🔥' + s.streak}
+                  <LevelIcon icon={level.icon} /> {level.name} · {s.wins}G {s.losses}P{s.draws ? ` ${s.draws}E` : ''}
+                  {s.streak >= 3 && (
+                    <>
+                      {' · '}
+                      <FireIcon className="inline-icon streak-hot" weight="fill" />
+                      {s.streak}
+                    </>
+                  )}
                 </div>
               </div>
               <div className="rank-value">
@@ -87,7 +95,14 @@ export function Ranking() {
           puntos que ganarle a alguien que viene abajo. Lo que gana uno lo pierde el otro.
         </p>
         <p>
-          Niveles: 🥚 Pelotita · 🐣 Aprendiz (900) · 🏓 Amateur (975) · 🌶️ Picante (1050) · ⚡ Crack (1125) · 🥋 Maestro (1200) · 🐉 Leyenda (1300)
+          Niveles:{' '}
+          {LEVELS.map((l, i) => (
+            <span key={l.icon} className="nowrap">
+              {i > 0 && ' · '}
+              <LevelIcon icon={l.icon} /> {l.name}
+              {l.min > 0 && ` (${l.min})`}
+            </span>
+          ))}
         </p>
       </details>
     </div>

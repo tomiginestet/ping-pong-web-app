@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { ArrowLeftIcon, FireIcon, PencilSimpleIcon, SnowflakeIcon, TrashIcon } from '@phosphor-icons/react'
+import { LevelIcon } from '../components/icons'
+import { useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AchievementsSection } from '../components/AchievementsSection'
 import { Avatar } from '../components/Avatar'
@@ -23,7 +25,9 @@ export function PlayerDetail() {
     return (
       <div className="page">
         <p>Jugador no encontrado.</p>
-        <Link to="/jugadores">← Volver</Link>
+        <Link to="/jugadores" className="back">
+          <ArrowLeftIcon /> Volver
+        </Link>
       </div>
     )
   }
@@ -41,7 +45,7 @@ export function PlayerDetail() {
   return (
     <div className="page">
       <Link to="/jugadores" className="back">
-        ← Jugadores
+        <ArrowLeftIcon /> Jugadores
       </Link>
 
       {editing ? (
@@ -57,12 +61,12 @@ export function PlayerDetail() {
       ) : (
         <header className="profile" style={{ ['--player-color' as string]: player.color }}>
           <button className="btn small profile-edit" onClick={() => setEditing(true)}>
-            ✏️ Editar
+            <PencilSimpleIcon /> Editar
           </button>
           <Avatar player={player} size={88} />
           <h1>{player.name}</h1>
           <div className="level-badge">
-            {level.emoji} {level.name}
+            <LevelIcon icon={level.icon} /> {level.name}
           </div>
           <div className="profile-elo">
             <span className="big-number">{s.elo}</span>
@@ -77,7 +81,7 @@ export function PlayerDetail() {
                 />
               </div>
               <span className="progress-label">
-                Faltan {nextLevel.min - s.elo} para {nextLevel.emoji} {nextLevel.name}
+                Faltan {nextLevel.min - s.elo} para <LevelIcon icon={nextLevel.icon} /> {nextLevel.name}
               </span>
             </div>
           )}
@@ -88,7 +92,19 @@ export function PlayerDetail() {
         <Stat label="Victorias" value={s.wins} />
         <Stat label="Derrotas" value={s.losses} />
         <Stat label="% victorias" value={s.played ? `${Math.round(winRate(s) * 100)}%` : '–'} />
-        <Stat label="Racha" value={s.streak > 0 ? `🔥 ${s.streak}` : s.streak < 0 ? `🥶 ${-s.streak}` : '–'} />
+        <Stat label="Racha" value={
+            s.streak > 0 ? (
+              <>
+                <FireIcon className="streak-hot" weight="fill" /> {s.streak}
+              </>
+            ) : s.streak < 0 ? (
+              <>
+                <SnowflakeIcon className="streak-cold" weight="bold" /> {-s.streak}
+              </>
+            ) : (
+              '–'
+            )
+          } />
       </div>
 
       <section className="card">
@@ -153,7 +169,7 @@ export function PlayerDetail() {
             if (confirm(`¿Borrar a ${player.name}?`) && actions.deletePlayer(player.id)) navigate('/jugadores')
           }}
         >
-          🗑️ Borrar jugador
+          <TrashIcon /> Borrar jugador
         </button>
       )}
     </div>
@@ -169,7 +185,7 @@ function Detail({ label, value }: { label: string; value: string | number }) {
   )
 }
 
-function Stat({ label, value }: { label: string; value: string | number }) {
+function Stat({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="stat">
       <span className="stat-value">{value}</span>

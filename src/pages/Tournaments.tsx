@@ -1,3 +1,4 @@
+import { PlusIcon, TrophyIcon } from '@phosphor-icons/react'
 import { Link } from 'react-router-dom'
 import { TournamentCard } from '../components/TournamentCard'
 import { usePlayerMap } from '../lib/hooks'
@@ -13,12 +14,12 @@ export function Tournaments() {
       <div className="section-head">
         <h1>Torneos</h1>
         <Link to="/torneos/nuevo" className="btn primary">
-          + Nuevo
+          <PlusIcon /> Nuevo
         </Link>
       </div>
       {!list.length && (
         <div className="empty">
-          <div className="big-emoji">🎪</div>
+          <TrophyIcon className="big-icon" weight="duotone" />
           Armá un torneíto entre amigos: liga (todos contra todos) o eliminación directa.
         </div>
       )}

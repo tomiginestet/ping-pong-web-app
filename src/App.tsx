@@ -1,3 +1,4 @@
+import { ClockCounterClockwiseIcon, HouseIcon, RankingIcon, TrophyIcon, UsersIcon } from '@phosphor-icons/react'
 import { HashRouter, NavLink, Outlet, Route, Routes } from 'react-router-dom'
 import { Home } from './pages/Home'
 import { MatchScreen } from './pages/MatchScreen'
@@ -13,11 +14,11 @@ import { TournamentDetail } from './pages/TournamentDetail'
 import { Tournaments } from './pages/Tournaments'
 
 const NAV = [
-  { to: '/', label: 'Inicio', icon: '🏠', end: true },
-  { to: '/ranking', label: 'Ranking', icon: '🏆' },
-  { to: '/torneos', label: 'Torneos', icon: '🎪' },
-  { to: '/jugadores', label: 'Jugadores', icon: '👥' },
-  { to: '/historial', label: 'Historial', icon: '📜' },
+  { to: '/', label: 'Inicio', Icon: HouseIcon, end: true },
+  { to: '/ranking', label: 'Ranking', Icon: RankingIcon },
+  { to: '/torneos', label: 'Torneos', Icon: TrophyIcon },
+  { to: '/jugadores', label: 'Jugadores', Icon: UsersIcon },
+  { to: '/historial', label: 'Historial', Icon: ClockCounterClockwiseIcon },
 ]
 
 function Layout() {
@@ -29,8 +30,12 @@ function Layout() {
       <nav className="bottom-nav">
         {NAV.map((n) => (
           <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => 'nav-item' + (isActive ? ' active' : '')}>
-            <span className="nav-icon">{n.icon}</span>
-            <span className="nav-label">{n.label}</span>
+            {({ isActive }) => (
+              <>
+                <n.Icon className="nav-icon" size={24} weight={isActive ? 'fill' : 'regular'} />
+                <span className="nav-label">{n.label}</span>
+              </>
+            )}
           </NavLink>
         ))}
       </nav>

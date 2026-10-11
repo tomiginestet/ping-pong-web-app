@@ -1,3 +1,4 @@
+import { PingPongIcon } from '@phosphor-icons/react'
 import { Link } from 'react-router-dom'
 import { formatDate, UNKNOWN_PLAYER } from '../lib/hooks'
 import { computeMatch } from '../lib/scoring'
@@ -32,7 +33,7 @@ export function MatchRow({ match: m, players, eloDelta, showDate = true, perspec
       <span className="mr-name">{teamName(team)}</span>
       {live && state.server === s && (
         <span className="mr-serve" title="Saca" aria-label="Saca">
-          🏓
+          <PingPongIcon weight="fill" />
         </span>
       )}
       {eloDelta && <span className={'elo-delta ' + (eloDelta[s] >= 0 ? 'up' : 'down')}>{eloDelta[s] >= 0 ? '+' : ''}{eloDelta[s]}</span>}
@@ -49,7 +50,9 @@ export function MatchRow({ match: m, players, eloDelta, showDate = true, perspec
       </div>
       <div className="mr-meta">
         {m.status === 'pending' && <span className="pill">Por jugar</span>}
-        {live && <span className="pill live">● En juego</span>}
+        {live && <span className="pill live">
+            <span className="live-dot" /> En juego
+          </span>}
         {live && (
           <span className="mr-detail">
             Juego {state.games.length}
