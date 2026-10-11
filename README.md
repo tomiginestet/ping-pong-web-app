@@ -4,7 +4,7 @@ Una pequeña app web para llevar los puntajes, rankings y torneos de ping pong e
 
 ## Qué hace
 
-- **Jugadores**: creá jugadores con nombre, emoji y color (no hace falta registrarse).
+- **Jugadores**: creá jugadores con nombre, avatar (ícono) y color (no hace falta registrarse).
 - **Partido rápido** (singles o dobles): elegí los jugadores y las reglas:
   - a cuántos puntos se gana cada juego (2, 4, 11, 21 o cualquier número),
   - al mejor de cuántos juegos (1, 3, 5, 10…; con número par puede haber empate),
@@ -14,9 +14,9 @@ Una pequeña app web para llevar los puntajes, rankings y torneos de ping pong e
   Muestra quién saca, punto de juego/partido, juegos ganados; se puede deshacer y cambiar de lado.
   Funciona en vertical (arriba/abajo) y horizontal (izquierda/derecha). En la compu: ← / → suman y Backspace deshace.
 - **Torneos**: liga (todos contra todos, opcional ida y vuelta) o eliminación directa (con BYEs automáticos).
-- **Ranking con ELO**, niveles (🥚 Pelotita → 🐉 Leyenda), rachas, logros desbloqueables, cara a cara e historial.
+- **Ranking con ELO**, niveles (de Pelotita a Leyenda), rachas, logros desbloqueables, cara a cara e historial.
 - **Dobles**: cada integrante usa el ELO promedio de su pareja; gana o pierde lo mismo que su compañero.
-- **Clubes sincronizados** (☁️ arriba a la derecha en Inicio): un grupo de amigos comparte jugadores, partidos,
+- **Clubes sincronizados** (arriba a la derecha en Inicio): un grupo de amigos comparte jugadores, partidos,
   torneos y ranking entre todos sus celulares. Se entra con un link de invitación, sin cuentas.
   Los partidos se ven en vivo punto a punto.
 - **Copia de seguridad**: exportar/importar todos los datos en JSON (Ranking → Ajustes).

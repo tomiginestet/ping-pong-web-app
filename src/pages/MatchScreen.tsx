@@ -1,3 +1,5 @@
+import { ArrowCounterClockwiseIcon, ArrowLeftIcon, ArrowsCounterClockwiseIcon, ArrowsLeftRightIcon, ConfettiIcon, HandshakeIcon, HouseIcon, PingPongIcon, SparkleIcon, StarIcon, TargetIcon, TrashIcon, TrophyIcon, XIcon } from '@phosphor-icons/react'
+import { AvatarGlyph, LevelIcon } from '../components/icons'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { TeamAvatar } from '../components/Avatar'
@@ -52,7 +54,9 @@ export function MatchScreen() {
     return (
       <div className="page">
         <p>Partido no encontrado.</p>
-        <Link to="/">← Inicio</Link>
+        <Link to="/" className="back">
+          <ArrowLeftIcon /> Inicio
+        </Link>
       </div>
     )
   }
@@ -120,17 +124,17 @@ function Scoreboard({ match }: { match: Match }) {
     <div className="scoreboard">
       <div className="sb-topbar">
         <button className="icon-btn" onClick={() => navigate(backTo)} aria-label="Salir">
-          ✕
+          <XIcon />
         </button>
         <div className="sb-info">
           <strong>{finished ? 'Final' : `Juego ${state.games.length}`}</strong>
           <span>{describeConfig(match.config)}</span>
         </div>
         <button className="icon-btn" onClick={() => setFlipped((f) => !f)} aria-label="Cambiar lados" title="Cambiar lados">
-          ⇄
+          <ArrowsLeftRightIcon />
         </button>
         <button className="icon-btn" onClick={undo} disabled={!match.points.length} aria-label="Deshacer" title="Deshacer último punto">
-          ↶
+          <ArrowCounterClockwiseIcon />
         </button>
       </div>
 
@@ -163,7 +167,9 @@ function Scoreboard({ match }: { match: Match }) {
               disabled={locked}
             >
               <div className="ch-player">
-                <span className="ch-emoji">{p.emoji}</span>
+                <span className="ch-emoji">
+                  <TeamGlyphs team={s === 'a' ? teamA : teamB} />
+                </span>
                 <span className="ch-name">{p.name}</span>
               </div>
               <div className="ch-games" aria-label={`${state.gamesWon[s]} juegos`}>
@@ -175,7 +181,9 @@ function Scoreboard({ match }: { match: Match }) {
                 {state.current[s]}
               </div>
               <div className="ch-tags">
-                {isServer && <span className="serve-tag">🏓 Saca</span>}
+                {isServer && <span className="serve-tag">
+                    <PingPongIcon weight="fill" /> Saca
+                  </span>}
                 {tag && <span className="point-tag">{tag}</span>}
               </div>
             </button>
@@ -210,7 +218,7 @@ function Scoreboard({ match }: { match: Match }) {
               ))}
             </div>
             <button className="btn primary big block" onClick={() => actions.startMatch(match.id)}>
-              🏓 ¡A jugar!
+              <PingPongIcon /> ¡A jugar!
             </button>
             <button className="btn block" onClick={() => navigate(backTo)}>
               Volver
@@ -222,7 +230,7 @@ function Scoreboard({ match }: { match: Match }) {
       {betweenGames && lastGame && (
         <div className="overlay">
           <div className="overlay-card">
-            <div className="big-emoji">🎯</div>
+            <TargetIcon className="big-icon" weight="duotone" />
             <h2>Juego para {playerOf(lastGame.winner!).name}</h2>
             <p className="game-final">
               {lastGame.a} - {lastGame.b}
@@ -237,13 +245,13 @@ function Scoreboard({ match }: { match: Match }) {
                 setSeenGames(completedGames)
               }}
             >
-              ⇄ Cambiar lados y seguir
+              <ArrowsLeftRightIcon /> Cambiar lados y seguir
             </button>
             <button className="btn block" onClick={() => setSeenGames(completedGames)}>
               Seguir sin cambiar
             </button>
             <button className="link-btn" onClick={undo}>
-              ↶ Deshacer último punto
+              <ArrowCounterClockwiseIcon className="inline-icon" /> Deshacer último punto
             </button>
           </div>
         </div>
@@ -300,7 +308,7 @@ function MatchResult({ match, teamA, teamB, onUndo, backTo }: { match: Match; te
     <div className="overlay result">
       {winner && <Confetti />}
       <div className="overlay-card">
-        <div className="big-emoji">{winner ? '🏆' : '🤝'}</div>
+        {winner ? <TrophyIcon className="big-icon gold" weight="duotone" /> : <HandshakeIcon className="big-icon" weight="duotone" />}
         {winner ? (
           <>
             <TeamAvatar team={winnerTeam} size={80} />
@@ -311,17 +319,21 @@ function MatchResult({ match, teamA, teamB, onUndo, backTo }: { match: Match; te
         )}
         <div className="result-score">
           <div className={'rs-side' + (state.winner === 'a' ? ' w' : '')}>
-            <span>{pA.emoji} {pA.name}</span>
+            <span className="rs-name">
+              <TeamGlyphs team={teamA} /> {pA.name}
+            </span>
             <b>{state.gamesWon.a}</b>
             {delta && <span className={'elo-delta ' + (delta.a >= 0 ? 'up' : 'down')}>{delta.a >= 0 ? '+' : ''}{delta.a} ELO</span>}
-            <span className="muted small">{levelFor(elo.a).emoji} {elo.a}</span>
+            <span className="muted small"><LevelIcon icon={levelFor(elo.a).icon} /> {elo.a}</span>
           </div>
           <span className="vs">-</span>
           <div className={'rs-side' + (state.winner === 'b' ? ' w' : '')}>
-            <span>{pB.emoji} {pB.name}</span>
+            <span className="rs-name">
+              <TeamGlyphs team={teamB} /> {pB.name}
+            </span>
             <b>{state.gamesWon.b}</b>
             {delta && <span className={'elo-delta ' + (delta.b >= 0 ? 'up' : 'down')}>{delta.b >= 0 ? '+' : ''}{delta.b} ELO</span>}
-            <span className="muted small">{levelFor(elo.b).emoji} {elo.b}</span>
+            <span className="muted small"><LevelIcon icon={levelFor(elo.b).icon} /> {elo.b}</span>
           </div>
         </div>
         <p className="muted">{state.games.map((g) => `${g.a}-${g.b}`).join(' · ')}</p>
@@ -345,15 +357,23 @@ function MatchResult({ match, teamA, teamB, onUndo, backTo }: { match: Match; te
 
         {!match.tournamentId && (
           <button className="btn primary big block" onClick={rematch}>
-            🔁 Revancha
+            <ArrowsCounterClockwiseIcon /> Revancha
           </button>
         )}
         <button className={'btn block' + (match.tournamentId ? ' primary big' : '')} onClick={() => navigate(backTo)}>
-          {match.tournamentId ? '🎪 Volver al torneo' : '🏠 Inicio'}
+          {match.tournamentId ? (
+            <>
+              <TrophyIcon /> Volver al torneo
+            </>
+          ) : (
+            <>
+              <HouseIcon /> Inicio
+            </>
+          )}
         </button>
         <div className="row gap center">
           <button className="link-btn" onClick={onUndo}>
-            ↶ Deshacer último punto
+            <ArrowCounterClockwiseIcon className="inline-icon" /> Deshacer último punto
           </button>
           {!match.tournamentId && (
             <button
@@ -365,7 +385,7 @@ function MatchResult({ match, teamA, teamB, onUndo, backTo }: { match: Match; te
                 }
               }}
             >
-              🗑️ Borrar
+              <TrashIcon className="inline-icon" /> Borrar
             </button>
           )}
         </div>
@@ -375,19 +395,34 @@ function MatchResult({ match, teamA, teamB, onUndo, backTo }: { match: Match; te
   )
 }
 
+const CONFETTI_ICONS = [ConfettiIcon, PingPongIcon, SparkleIcon, StarIcon, TrophyIcon]
+const CONFETTI_COLORS = ['#ff6b35', '#ffb400', '#22c55e', '#3b82f6', '#ec4899', '#a855f7']
+
+/** Íconos de los avatares de un equipo, uno al lado del otro. */
+function TeamGlyphs({ team }: { team: Player[] }) {
+  return (
+    <span className="team-glyphs">
+      {team.map((p, i) => (
+        <AvatarGlyph key={p.id + i} glyph={p.emoji} />
+      ))}
+    </span>
+  )
+}
+
 function Confetti() {
   // Distribución pseudoaleatoria determinística (sin Math.random en el render).
   const pieces = Array.from({ length: 40 }, (_, i) => ({
     left: (i * 37) % 100,
     delay: ((i * 13) % 15) / 10,
     duration: 2.5 + ((i * 7) % 20) / 10,
-    emoji: ['🎉', '🏓', '✨', '🎊', '⭐'][i % 5],
+    Icon: CONFETTI_ICONS[i % CONFETTI_ICONS.length],
+    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
   }))
   return (
     <div className="confetti" aria-hidden>
       {pieces.map((p, i) => (
-        <span key={i} style={{ left: `${p.left}%`, animationDelay: `${p.delay}s`, animationDuration: `${p.duration}s` }}>
-          {p.emoji}
+        <span key={i} style={{ left: `${p.left}%`, animationDelay: `${p.delay}s`, animationDuration: `${p.duration}s`, color: p.color }}>
+          <p.Icon weight="fill" size={24} />
         </span>
       ))}
     </div>

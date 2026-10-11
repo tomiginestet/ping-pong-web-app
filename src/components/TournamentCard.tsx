@@ -1,3 +1,4 @@
+import { TrophyIcon } from '@phosphor-icons/react'
 import { Link } from 'react-router-dom'
 import { formatDate } from '../lib/hooks'
 import { describeConfig } from '../lib/scoring'
@@ -18,7 +19,9 @@ export function TournamentCard({ t, data, players }: { t: Tournament; data: AppD
     <Link to={`/torneos/${t.id}`} className="card tournament-card">
       <div className="row-between">
         <strong className="grow">{t.name}</strong>
-        {champion ? <span className="pill gold">🏆 {champion.name}</span> : <span className="pill live">En curso</span>}
+        {champion ? <span className="pill gold">
+            <TrophyIcon className="inline-icon" weight="fill" /> {champion.name}
+          </span> : <span className="pill live">En curso</span>}
       </div>
       <span className="muted small">
         {format} · {describeConfig(t.config)}

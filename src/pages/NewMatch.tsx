@@ -1,3 +1,4 @@
+import { DiceFiveIcon, PingPongIcon, ShuffleIcon, UserIcon, UsersIcon } from '@phosphor-icons/react'
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ConfigEditor } from '../components/ConfigEditor'
@@ -73,7 +74,15 @@ export function NewMatch() {
               setSelected((s) => s.slice(0, d ? 4 : 2))
             }}
           >
-            {d ? '👥 Dobles' : '👤 Singles'}
+            {d ? (
+              <>
+                <UsersIcon /> Dobles
+              </>
+            ) : (
+              <>
+                <UserIcon /> Singles
+              </>
+            )}
           </button>
         ))}
       </div>
@@ -93,7 +102,7 @@ export function NewMatch() {
                 setSelected(s)
               }}
             >
-              🎲 Equipos al azar
+              <ShuffleIcon className="inline-icon" /> Equipos al azar
             </button>
           </div>
         )}
@@ -104,7 +113,7 @@ export function NewMatch() {
           <h2>¿Quién saca primero?</h2>
           <div className="chips">
             <button type="button" className={'chip' + (server === 'random' ? ' active' : '')} onClick={() => setServer('random')}>
-              🎲 Al azar
+              <DiceFiveIcon className="inline-icon" /> Al azar
             </button>
             <button type="button" className={'chip' + (server === 'a' ? ' active' : '')} onClick={() => setServer('a')}>
               {nameOf(teamA)}
@@ -123,7 +132,13 @@ export function NewMatch() {
 
       <div className="sticky-actions">
         <button className="btn primary big block" disabled={!ready} onClick={start}>
-          {ready ? `🏓 ${nameOf(teamA)} vs ${nameOf(teamB)}` : `Elegí ${needed} jugadores`}
+          {ready ? (
+            <>
+              <PingPongIcon /> {nameOf(teamA)} vs {nameOf(teamB)}
+            </>
+          ) : (
+            `Elegí ${needed} jugadores`
+          )}
         </button>
       </div>
     </div>

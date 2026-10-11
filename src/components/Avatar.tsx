@@ -1,4 +1,5 @@
 import type { Player } from '../lib/types'
+import { AvatarGlyph } from './icons'
 
 export function Avatar({ player, size = 40 }: { player: Player; size?: number }) {
   return (
@@ -7,7 +8,7 @@ export function Avatar({ player, size = 40 }: { player: Player; size?: number })
       style={{ width: size, height: size, fontSize: size * 0.55, background: player.color + '33', borderColor: player.color }}
       aria-hidden
     >
-      {player.emoji}
+      <AvatarGlyph glyph={player.emoji} size="1.1em" />
     </span>
   )
 }

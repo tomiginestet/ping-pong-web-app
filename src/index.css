@@ -187,6 +187,10 @@ section > .section-head {
 }
 
 .back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
   color: var(--muted);
   font-size: 14px;
   margin-bottom: -8px;
@@ -222,9 +226,7 @@ section > .section-head {
 }
 
 .nav-icon {
-  font-size: 22px;
-  filter: grayscale(1);
-  opacity: 0.7;
+  opacity: 0.75;
   transition: transform 0.15s;
 }
 
@@ -244,7 +246,7 @@ section > .section-head {
 }
 
 .nav-item.active .nav-icon {
-  filter: none;
+  color: var(--accent);
   opacity: 1;
   transform: translateY(-2px) scale(1.1);
 }
@@ -363,6 +365,10 @@ section > .section-head {
 }
 
 .icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
   width: 44px;
   height: 44px;
   border-radius: 12px;
@@ -597,9 +603,87 @@ section > .section-head {
   color: var(--loss);
 }
 
-.big-emoji {
-  font-size: 44px;
-  line-height: 1;
+/* ---------- Íconos ---------- */
+
+svg {
+  flex-shrink: 0;
+}
+
+/* Ícono dentro de una línea de texto (no flex). */
+.inline-icon {
+  vertical-align: -0.2em;
+}
+
+.big-icon {
+  display: block;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto;
+  color: var(--accent);
+}
+
+.big-icon.gold {
+  color: var(--accent-2);
+}
+
+.title-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title-icon {
+  color: var(--accent);
+}
+
+.place-medal {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.streak-hot {
+  color: var(--accent);
+}
+
+.streak-cold {
+  color: #60a5fa;
+}
+
+.team-glyphs {
+  display: inline-flex;
+  gap: 2px;
+  vertical-align: -0.2em;
+}
+
+.live-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 2px;
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: 1px;
+  animation: blink 1.4s ease-in-out infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.status-message {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-message.ok {
+  color: var(--win);
+}
+
+.status-message.error {
+  color: var(--loss);
 }
 
 /* ---------- Inicio ---------- */
@@ -636,6 +720,7 @@ section > .section-head {
   border-radius: 999px;
   background: var(--card);
   border: 1px solid var(--border);
+  color: var(--text);
   font-size: 16px;
 }
 
@@ -680,7 +765,8 @@ section > .section-head {
 }
 
 .podium-medal {
-  font-size: 26px;
+  font-size: 30px;
+  line-height: 1;
 }
 
 .podium-block {
@@ -859,7 +945,11 @@ section > .section-head {
 }
 
 .emoji-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   aspect-ratio: 1;
+  color: var(--text);
   font-size: 22px;
   border-radius: 10px;
   border: 1px solid transparent;
@@ -869,6 +959,7 @@ section > .section-head {
 
 .emoji-btn.active {
   border-color: var(--accent);
+  color: var(--accent);
   background: rgba(255, 107, 53, 0.15);
 }
 
@@ -2080,4 +2171,39 @@ section > .section-head {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Elementos que combinan un ícono con texto. */
+.link-btn,
+.chip,
+.segmented button,
+.serve-tag,
+.level-badge,
+.stat-value,
+.rs-name {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.stepper button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+}
+
+.picker-badge svg {
+  display: block;
+  margin: 2px 0;
+}
+
+.champion-banner .big-icon {
+  margin: 0;
+}
+
+.mr-serve {
+  display: inline-flex;
+  color: var(--accent-2);
 }

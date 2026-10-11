@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import type { Id, Player } from '../lib/types'
 import { Avatar } from './Avatar'
@@ -7,7 +8,7 @@ interface Props {
   selected: Id[]
   onToggle: (id: Id) => void
   /** Etiqueta opcional para cada jugador seleccionado (p. ej. "1" / "2"). */
-  badge?: (id: Id) => string | undefined
+  badge?: (id: Id) => ReactNode
 }
 
 export function PlayerPicker({ players, selected, onToggle, badge }: Props) {

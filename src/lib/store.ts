@@ -10,7 +10,11 @@ const STORAGE_KEY = 'ping-pong-data-v1'
 export const EMPTY: AppData = { version: 1, players: [], matches: [], tournaments: [] }
 
 export const PLAYER_COLORS = ['#ff5a5f', '#ffb400', '#00a699', '#3b82f6', '#a855f7', '#ec4899', '#22c55e', '#f97316', '#14b8a6', '#eab308']
-export const PLAYER_EMOJIS = ['🦊', '🐯', '🐼', '🐸', '🦁', '🐙', '🦄', '🐲', '🦅', '🐺', '🐻', '🐵', '🦈', '🐝', '🦖', '🐧', '🐨', '🐔', '🤖', '👽', '🔥', '⚡', '🌮', '🍕']
+/**
+ * Avatares disponibles. Se guarda el emoji como clave (compatible con los datos existentes),
+ * pero en pantalla se dibuja su ícono (ver components/icons).
+ */
+export const PLAYER_EMOJIS = ['🦊', '🐯', '🐼', '🐸', '🦁', '🐙', '🦄', '🐲', '🦅', '🐺', '🐻', '🐵', '🦈', '🐝', '🦖', '🐧', '🐨', '🐔', '🐱', '🐶', '🐰', '🦋', '🤖', '👽', '🚀', '👑', '🔥', '⚡', '🌵', '🌮', '🍕', '🍔']
 
 export function uid(): Id {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4)

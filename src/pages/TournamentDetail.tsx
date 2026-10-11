@@ -1,3 +1,4 @@
+import { ArrowLeftIcon, PingPongIcon, PlayIcon, TrashIcon, TrophyIcon } from '@phosphor-icons/react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
 import { MatchRow } from '../components/MatchRow'
@@ -19,7 +20,9 @@ export function TournamentDetail() {
     return (
       <div className="page">
         <p>Torneo no encontrado.</p>
-        <Link to="/torneos">← Torneos</Link>
+        <Link to="/torneos" className="back">
+          <ArrowLeftIcon /> Torneos
+        </Link>
       </div>
     )
   }
@@ -31,7 +34,7 @@ export function TournamentDetail() {
   return (
     <div className="page">
       <Link to="/torneos" className="back">
-        ← Torneos
+        <ArrowLeftIcon /> Torneos
       </Link>
       <header className="tournament-header">
         <h1>{t.name}</h1>
@@ -42,7 +45,7 @@ export function TournamentDetail() {
 
       {champion && (
         <div className="champion-banner">
-          <span className="big-emoji">🏆</span>
+          <TrophyIcon className="big-icon gold" weight="duotone" />
           <Avatar player={champion} size={72} />
           <div>
             <div className="muted small">Campeón</div>
@@ -62,7 +65,7 @@ export function TournamentDetail() {
           }
         }}
       >
-        🗑️ Borrar torneo
+        <TrashIcon /> Borrar torneo
       </button>
     </div>
   )
@@ -82,7 +85,8 @@ function League({ t, matches, players }: { t: Tournament; matches: Match[]; play
     <>
       {next && (
         <Link to={`/partido/${next.id}`} className="btn primary big block">
-          {next.status === 'live' ? '▶️ Continuar' : '🏓 Jugar'}: {players.get(next.playerA)?.name} vs {players.get(next.playerB)?.name}
+          {next.status === 'live' ? <PlayIcon weight="fill" /> : <PingPongIcon />}
+          {next.status === 'live' ? 'Continuar' : 'Jugar'}: {players.get(next.playerA)?.name} vs {players.get(next.playerB)?.name}
         </Link>
       )}
 
@@ -200,7 +204,8 @@ function BracketCard({ t, slot, players }: { t: Tournament; slot: BracketSlot; p
       {line(slot.b)}
       {playable && (
         <button className="btn small primary block" onClick={play}>
-          {m?.status === 'live' ? '▶️ Continuar' : '🏓 Jugar'}
+          {m?.status === 'live' ? <PlayIcon weight="fill" /> : <PingPongIcon />}
+          {m?.status === 'live' ? 'Continuar' : 'Jugar'}
         </button>
       )}
       {m && m.status === 'finished' && (

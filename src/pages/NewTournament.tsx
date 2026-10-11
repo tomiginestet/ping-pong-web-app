@@ -1,3 +1,5 @@
+import { ArrowsClockwiseIcon, CheckIcon, TrophyIcon } from '@phosphor-icons/react'
+import { SwordsIcon } from '../components/icons/custom'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ConfigEditor } from '../components/ConfigEditor'
@@ -38,12 +40,12 @@ export function NewTournament() {
           <label>Formato</label>
           <div className="format-options">
             <button type="button" className={'format-opt' + (format === 'league' ? ' active' : '')} onClick={() => setFormat('league')}>
-              <span className="big-emoji">🔄</span>
+              <ArrowsClockwiseIcon className="big-icon" weight="duotone" />
               <b>Liga</b>
               <span className="muted small">Todos contra todos. Gana quien más puntos sume.</span>
             </button>
             <button type="button" className={'format-opt' + (format === 'knockout' ? ' active' : '')} onClick={() => setFormat('knockout')}>
-              <span className="big-emoji">⚔️</span>
+              <SwordsIcon className="big-icon" weight="duotone" />
               <b>Eliminación</b>
               <span className="muted small">Cuadro de llaves. El que pierde, afuera.</span>
             </button>
@@ -74,7 +76,7 @@ export function NewTournament() {
               </button>
             ))}
         </div>
-        <PlayerPicker players={players} selected={selected} onToggle={toggle} badge={(id) => (selected.includes(id) ? '✓' : undefined)} />
+        <PlayerPicker players={players} selected={selected} onToggle={toggle} badge={(id) => (selected.includes(id) ? <CheckIcon size={12} /> : undefined)} />
       </section>
 
       <section className="card">
@@ -91,7 +93,13 @@ export function NewTournament() {
             navigate(`/torneos/${t.id}`)
           }}
         >
-          {valid ? `🎪 Crear torneo · ${matchCount} partidos` : 'Elegí al menos 2 jugadores'}
+          {valid ? (
+            <>
+              <TrophyIcon /> Crear torneo · {matchCount} partidos
+            </>
+          ) : (
+            'Elegí al menos 2 jugadores'
+          )}
         </button>
       </div>
     </div>

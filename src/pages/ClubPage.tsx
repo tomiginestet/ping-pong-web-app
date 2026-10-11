@@ -1,3 +1,4 @@
+import { ArrowsClockwiseIcon, ArrowsCounterClockwiseIcon, CheckIcon, CloudIcon, CopyIcon, PingPongIcon, PlusIcon, ShareNetworkIcon, SignOutIcon, SparkleIcon } from '@phosphor-icons/react'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { formatDate } from '../lib/hooks'
@@ -73,7 +74,9 @@ export function ClubPage() {
     const alreadyInInvited = inviteCode && inviteCode === sync.club.code
     return (
       <div className="page">
-        <h1>☁️ {sync.club.name}</h1>
+        <h1 className="title-with-icon">
+          <CloudIcon className="title-icon" weight="duotone" /> {sync.club.name}
+        </h1>
         {inviteCode && !alreadyInInvited && (
           <div className="card warn">
             Este dispositivo ya está en otro club. Para unirte al club del link, primero salí de “{sync.club.name}”.
@@ -86,7 +89,7 @@ export function ClubPage() {
               {STATUS_TEXT[sync.status]}
             </span>
             <button className="btn small" disabled={sync.status === 'syncing'} onClick={() => run(syncNow)}>
-              🔄 Sincronizar
+              <ArrowsClockwiseIcon /> Sincronizar
             </button>
           </div>
           <p className="muted small">
@@ -109,7 +112,7 @@ export function ClubPage() {
               onClick={async () => {
                 if (navigator.share) {
                   try {
-                    await navigator.share({ title: `Club ${sync.club!.name}`, text: `Sumate a “${sync.club!.name}” en Ping Pong Club 🏓`, url: link })
+                    await navigator.share({ title: `Club ${sync.club!.name}`, text: `Sumate a “${sync.club!.name}” en Ping Pong Club`, url: link })
                     return
                   } catch {
                     // cancelado: copiamos
@@ -120,7 +123,7 @@ export function ClubPage() {
                 setTimeout(() => setCopied(false), 2000)
               }}
             >
-              📤 Compartir link
+              <ShareNetworkIcon /> Compartir link
             </button>
             <button
               className="btn"
@@ -130,7 +133,15 @@ export function ClubPage() {
                 setTimeout(() => setCopied(false), 2000)
               }}
             >
-              {copied ? '✅ Copiado' : '📋 Copiar'}
+              {copied ? (
+                <>
+                  <CheckIcon /> Copiado
+                </>
+              ) : (
+                <>
+                  <CopyIcon /> Copiar
+                </>
+              )}
             </button>
           </div>
           <p className="muted small">
@@ -147,7 +158,7 @@ export function ClubPage() {
             }
           }}
         >
-          🚪 Salir del club
+          <SignOutIcon /> Salir del club
         </button>
       </div>
     )
@@ -155,7 +166,9 @@ export function ClubPage() {
 
   return (
     <div className="page">
-      <h1>☁️ Club</h1>
+      <h1 className="title-with-icon">
+        <CloudIcon className="title-icon" weight="duotone" /> Club
+      </h1>
       <p className="muted">
         Armá un club para compartir jugadores, partidos y ranking entre los celulares de todos. No hace falta crear cuentas: se entra con un link.
       </p>
@@ -171,7 +184,7 @@ export function ClubPage() {
                 <>
                   <p className="muted">En este dispositivo ya hay datos cargados. ¿Qué hacemos con ellos?</p>
                   <button className="btn primary block" disabled={busy} onClick={() => run(() => joinClub(inviteCode, 'merge').then(() => navigate('/')))}>
-                    ➕ Unirme y sumar mis datos al club
+                    <PlusIcon /> Unirme y sumar mis datos al club
                   </button>
                   <button
                     className="btn block"
@@ -181,12 +194,12 @@ export function ClubPage() {
                       run(() => joinClub(inviteCode, 'replace').then(() => navigate('/')))
                     }
                   >
-                    🔁 Unirme y usar sólo los datos del club
+                    <ArrowsCounterClockwiseIcon /> Unirme y usar sólo los datos del club
                   </button>
                 </>
               ) : (
                 <button className="btn primary big block" disabled={busy} onClick={() => run(() => joinClub(inviteCode, 'replace').then(() => navigate('/')))}>
-                  🏓 Unirme al club
+                  <PingPongIcon /> Unirme al club
                 </button>
               )}
             </>
@@ -201,7 +214,7 @@ export function ClubPage() {
             <p className="muted small">{hasLocalData ? 'Los datos que ya cargaste en este dispositivo pasan al club.' : 'Después invitás a tus amigos con un link.'}</p>
             <input className="input" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} placeholder="Nombre del club" />
             <button className="btn primary block mt" disabled={busy || !name.trim()} onClick={() => run(() => createClub(name))}>
-              ✨ Crear club
+              <SparkleIcon /> Crear club
             </button>
           </section>
 

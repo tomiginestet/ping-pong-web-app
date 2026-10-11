@@ -1,3 +1,4 @@
+import { MinusIcon, PlusIcon } from '@phosphor-icons/react'
 import { gamesNeeded, suggestedServeEvery } from '../lib/scoring'
 import type { MatchConfig } from '../lib/types'
 
@@ -16,11 +17,11 @@ function Stepper({ value, min, max, onChange, step = 1 }: { value: number; min: 
   return (
     <span className="stepper">
       <button type="button" onClick={() => onChange(Math.max(min, value - step))} disabled={value <= min} aria-label="Menos">
-        −
+        <MinusIcon />
       </button>
       <span className="stepper-value">{value}</span>
       <button type="button" onClick={() => onChange(Math.min(max, value + step))} disabled={value >= max} aria-label="Más">
-        +
+        <PlusIcon />
       </button>
     </span>
   )

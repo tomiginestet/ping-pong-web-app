@@ -1,3 +1,5 @@
+import { PlusIcon } from '@phosphor-icons/react'
+import { LevelIcon } from '../components/icons'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
@@ -18,7 +20,7 @@ export function Players() {
         <h1>Jugadores</h1>
         {!adding && (
           <button className="btn primary" onClick={() => setAdding(true)}>
-            + Nuevo
+            <PlusIcon /> Nuevo
           </button>
         )}
       </div>
@@ -37,7 +39,7 @@ export function Players() {
               <div className="grow">
                 <strong>{p.name}</strong>
                 <div className="muted small">
-                  {level.emoji} {level.name} · {s?.played ?? 0} partidos · {s?.wins ?? 0} victorias
+                  <LevelIcon icon={level.icon} /> {level.name} · {s?.played ?? 0} partidos · {s?.wins ?? 0} victorias
                 </div>
               </div>
               <span className="elo">{s?.elo ?? 1000}</span>

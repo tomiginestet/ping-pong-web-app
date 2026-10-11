@@ -41,14 +41,16 @@ export interface MatchResultInfo {
   eloDelta: { a: number; b: number }
 }
 
-export const LEVELS: { min: number; name: string; emoji: string }[] = [
-  { min: -Infinity, name: 'Pelotita', emoji: '🥚' },
-  { min: 900, name: 'Aprendiz', emoji: '🐣' },
-  { min: 975, name: 'Amateur', emoji: '🏓' },
-  { min: 1050, name: 'Picante', emoji: '🌶️' },
-  { min: 1125, name: 'Crack', emoji: '⚡' },
-  { min: 1200, name: 'Maestro', emoji: '🥋' },
-  { min: 1300, name: 'Leyenda', emoji: '🐉' },
+export type LevelIconId = 'egg' | 'hatching' | 'paddle' | 'pepper' | 'lightning' | 'belt' | 'dragon'
+
+export const LEVELS: { min: number; name: string; icon: LevelIconId }[] = [
+  { min: -Infinity, name: 'Pelotita', icon: 'egg' },
+  { min: 900, name: 'Aprendiz', icon: 'hatching' },
+  { min: 975, name: 'Amateur', icon: 'paddle' },
+  { min: 1050, name: 'Picante', icon: 'pepper' },
+  { min: 1125, name: 'Crack', icon: 'lightning' },
+  { min: 1200, name: 'Maestro', icon: 'belt' },
+  { min: 1300, name: 'Leyenda', icon: 'dragon' },
 ]
 
 export function levelFor(elo: number) {
