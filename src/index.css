@@ -34,6 +34,10 @@ body {
 }
 
 body {
+  /* Explícito (no sólo heredado de :root): si la app se embebe en otra página
+     con estilos base propios, el texto no queda negro sobre el fondo oscuro. */
+  color: var(--text);
+  font: inherit;
   overscroll-behavior-y: none;
 }
 
