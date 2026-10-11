@@ -24,43 +24,21 @@ export interface PlayerStats {
   tournamentsWon: number
   doublesPlayed: number
   doublesWins: number
-  achievements: AchievementId[]
+  /** Juegos ganados sin que el rival haga un punto (a 5 o más). */
+  shutouts: number
+  /** Mayor desventaja que dio vuelta en un juego que terminó ganando. */
+  bestComeback: number
+  /** Partidos ganados en el juego decisivo. */
+  clutchWins: number
+  /** Cuántos puntos más allá del objetivo se estiró el juego ganado más largo. */
+  longestExtension: number
+  /** Mayor diferencia de ELO a favor del rival en un partido ganado. */
+  biggestUpset: number
 }
 
 export interface MatchResultInfo {
   match: Match
   eloDelta: { a: number; b: number }
-}
-
-export type AchievementId =
-  | 'first-win'
-  | 'streak-3'
-  | 'streak-5'
-  | 'streak-10'
-  | 'shutout'
-  | 'comeback'
-  | 'clutch'
-  | 'marathon'
-  | 'veteran-10'
-  | 'veteran-50'
-  | 'giant-killer'
-  | 'champion'
-  | 'dynamic-duo'
-
-export const ACHIEVEMENTS: Record<AchievementId, { emoji: string; name: string; description: string }> = {
-  'first-win': { emoji: '🩸', name: 'Primera sangre', description: 'Ganar el primer partido' },
-  'streak-3': { emoji: '🔥', name: 'En racha', description: 'Ganar 3 partidos seguidos' },
-  'streak-5': { emoji: '🌋', name: 'Imparable', description: 'Ganar 5 partidos seguidos' },
-  'streak-10': { emoji: '👑', name: 'Leyenda', description: 'Ganar 10 partidos seguidos' },
-  shutout: { emoji: '🧹', name: 'Pastelito', description: 'Ganar un juego sin que el rival haga un punto (a 5 o más)' },
-  comeback: { emoji: '🦸', name: 'Remontada', description: 'Ganar un juego después de ir perdiendo por 5 o más' },
-  clutch: { emoji: '🧊', name: 'Sangre fría', description: 'Ganar un partido en el juego decisivo' },
-  marathon: { emoji: '🏃', name: 'Maratón', description: 'Ganar un juego que se extendió 4+ puntos más allá del objetivo' },
-  'veteran-10': { emoji: '🎖️', name: 'Habitué', description: 'Jugar 10 partidos' },
-  'veteran-50': { emoji: '🏅', name: 'Veterano', description: 'Jugar 50 partidos' },
-  'giant-killer': { emoji: '🗡️', name: 'Matagigantes', description: 'Ganarle a alguien con 100+ de ELO más' },
-  champion: { emoji: '🏆', name: 'Campeón', description: 'Ganar un torneo' },
-  'dynamic-duo': { emoji: '🤝', name: 'Dupla dinámica', description: 'Ganar 3 partidos de dobles' },
 }
 
 export const LEVELS: { min: number; name: string; emoji: string }[] = [
@@ -101,7 +79,11 @@ function emptyStats(playerId: Id): PlayerStats {
     tournamentsWon: 0,
     doublesPlayed: 0,
     doublesWins: 0,
-    achievements: [],
+    shutouts: 0,
+    bestComeback: 0,
+    clutchWins: 0,
+    longestExtension: 0,
+    biggestUpset: 0,
   }
 }
 
@@ -111,17 +93,13 @@ export function finishedMatches(matches: Match[]): Match[] {
     .sort((x, y) => (x.finishedAt ?? x.createdAt) - (y.finishedAt ?? y.createdAt))
 }
 
-function addAchievement(s: PlayerStats, id: AchievementId) {
-  if (!s.achievements.includes(id)) s.achievements.push(id)
-}
-
 export interface Leaderboard {
   stats: Map<Id, PlayerStats>
   /** Cambio de ELO de cada partido terminado, por id de partido. */
   eloDeltas: Map<Id, { a: number; b: number }>
 }
 
-/** Recorre todo el historial y calcula ELO, estadísticas y logros. */
+/** Recorre todo el historial y calcula ELO y estadísticas (de donde salen los logros). */
 export function computeLeaderboard(data: AppData): Leaderboard {
   const stats = new Map<Id, PlayerStats>()
   const eloDeltas = new Map<Id, { a: number; b: number }>()
@@ -169,20 +147,13 @@ export function computeLeaderboard(data: AppData): Leaderboard {
         const lost = state.winner === opp
         if (won) {
           s.wins++
-          if (doubles) {
-            s.doublesWins++
-            if (s.doublesWins >= 3) addAchievement(s, 'dynamic-duo')
-          }
+          if (doubles) s.doublesWins++
           s.streak = s.streak > 0 ? s.streak + 1 : 1
           s.bestStreak = Math.max(s.bestStreak, s.streak)
-          addAchievement(s, 'first-win')
-          if (s.streak >= 3) addAchievement(s, 'streak-3')
-          if (s.streak >= 5) addAchievement(s, 'streak-5')
-          if (s.streak >= 10) addAchievement(s, 'streak-10')
-          if (eloGap >= 100) addAchievement(s, 'giant-killer')
+          s.biggestUpset = Math.max(s.biggestUpset, Math.round(eloGap))
           const gamesPlayed = state.gamesWon.a + state.gamesWon.b
           if (m.config.bestOf > 1 && state.gamesWon[opp] === state.gamesNeeded - 1 && gamesPlayed > 1) {
-            addAchievement(s, 'clutch')
+            s.clutchWins++
           }
         } else if (lost) {
           s.losses++
@@ -191,20 +162,18 @@ export function computeLeaderboard(data: AppData): Leaderboard {
           s.draws++
           s.streak = 0
         }
-        if (s.played >= 10) addAchievement(s, 'veteran-10')
-        if (s.played >= 50) addAchievement(s, 'veteran-50')
       }
     }
 
-    // Logros por juego: pastelito, remontada, maratón.
+    // Datos por juego: juegos en cero, remontadas y juegos largos.
     for (const g of gameTraces(m)) {
       const team = g.winner === 'a' ? teamA : teamB
       const loserPoints = g.winner === 'a' ? g.b : g.a
       const winnerPoints = g.winner === 'a' ? g.a : g.b
       for (const s of team) {
-        if (loserPoints === 0 && m.config.pointsToWin >= 5) addAchievement(s, 'shutout')
-        if (g.maxDeficit[g.winner] >= 5) addAchievement(s, 'comeback')
-        if (m.config.winByTwo && winnerPoints >= m.config.pointsToWin + 4) addAchievement(s, 'marathon')
+        if (loserPoints === 0 && m.config.pointsToWin >= 5) s.shutouts++
+        s.bestComeback = Math.max(s.bestComeback, g.maxDeficit[g.winner])
+        if (m.config.winByTwo) s.longestExtension = Math.max(s.longestExtension, winnerPoints - m.config.pointsToWin)
       }
     }
   }
@@ -214,7 +183,6 @@ export function computeLeaderboard(data: AppData): Leaderboard {
     if (champ) {
       const s = get(champ)
       s.tournamentsWon++
-      addAchievement(s, 'champion')
     }
   }
 
